@@ -170,7 +170,11 @@
 
 	"SOCKET_CONNNECT": "'connection'",
 	"SOCKET_JOIN_TRIP": "'join_trip'",
-	"SOCKET_UPDATE_LOCATION": "'update_location'"
+	"SOCKET_UPDATE_LOCATION": "'update_location'",
 
 
+	"ZAIN_CASH_SERVICE_TYPE": "Ride Sharing App",
+	"ZAIN_CASH_MSISDN": "9647835077893",
+	"ZAIN_CASH_SERCRET_KEY": "5ffacf6612b5777c6d44266f",
+	"ZAIN_CASH_MERCHANTID": "$2y$10$hBbAZo2GfSSvyqAyV2SaqOfYewgYpfR1O19gIh4SqyGWdmySZYPuS"
 }

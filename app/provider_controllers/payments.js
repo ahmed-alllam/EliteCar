@@ -1,5 +1,7 @@
 var User = require('mongoose').model('User');
 var crypto = require('crypto');
+require('./constant');
+var jwt = require('jsonwebtoken');
 var utils = require('../controllers/utils');
 var allemails = require('../controllers/emails');
 var moment = require('moment');
@@ -7,6 +9,7 @@ var nodemailer = require('nodemailer');
 var Setting = require('mongoose').model('Settings');
 var Provider = require('mongoose').model('Provider');
 var Trip = require('mongoose').model('Trip');
+var request = requite('request');
 var Trip_Service = require('mongoose').model('trip_service');
 var Trip_Location = require('mongoose').model('trip_location');
 var Country = require('mongoose').model('Country');
@@ -158,63 +161,88 @@ exports.card_selection = function (req, res) {
 
 
 exports.provider_add_wallet_amount = function (req, res, next) {
- 
-    var type = Number(req.body.type);
-    
-    Provider.findOne({_id: req.session.provider._id}).then((detail) => { 
-        var payment_id = Number(constant_json.PAYMENT_BY_STRIPE);
-        try {
-            payment_id = req.body.payment_id;
-        } catch (error) {
-            console.error(err);
+    if (typeof req.session.provider != "undefined") {
+        payment_id = Number(req.body.payment_id);
+        amount = Number(req.body.amount);
+        
+        if (payment_id != 0 && amount != 0) {
+            jwt.sign({
+                id: payment_id,
+                msisdn: ZAIN_CASH_MSISDN,
+            }, ZAIN_CASH_SERCRET_KEY, {
+                expiresIn: '4h'
+            }, function (err, token) {
+                request.post({
+                    url: 'https://test.zaincash.iq/transaction/get',
+                    form: {
+                        token: token,
+                        merchantId: ZAIN_CASH_MERCHANTID
+                    }
+                }, function (err, httpResponse, body) {
+                    // var transaction = JSON.parse(body);
+                    // console.log(transaction);
+                    // res.render('transaction', transaction);
+
+                    Provider.findOne({ _id: req.session.provider._id }).then((provider) => {
+                        var total_wallet_amount = utils.addWalletHistory(type, provider.unique_id, provider._id, provider.country_id, provider.wallet_currency_code, provider.wallet_currency_code,
+                            1, amount, provider.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.ADDED_BY_CARD, "Zain Cash Payment ID " + payment_id);
+        
+                        provider.wallet = total_wallet_amount;
+        
+                        provider.save().then(() => {
+                            message = "Wallet Amount Added Sucessfully.";
+                            res.status(204).send();
+                        }, (err) => {
+                            utils.error_response(err, res)
+                        });
+                    });
+                })
+            });
+        } else {
+            res.status(400).send({ message: "Invalid Payment ID or Amount" })
         }
-
-        switch (payment_id) {
-            case Number(constant_json.PAYMENT_BY_STRIPE):
-            break;
-            case Number(constant_json.PAYMENT_BY_PAYPAL):
-            break;
-        }
-        var stripe_secret_key = setting_detail.stripe_secret_key;
-
-        var stripe = require("stripe")(stripe_secret_key);
-        var wallet = utils.precisionRoundTwo(Number(req.body.wallet));
-        Card.findOne({_id: req.body.card_id, user_id: req.session.provider._id, $or: [{type: type}, {type: {$exists: false}}]}).then((card) => { 
-            if(card){
-                
-                var customer_id = card.customer_id;
-                var charge = stripe.charges.create({
-                            amount: wallet * 100, // amount in cents, again
-                            currency: detail.wallet_currency_code,
-                            customer: customer_id
-                        }, function (err, charge) {
-                            if (charge) {
-                                var total_wallet_amount = utils.addWalletHistory(type, detail.unique_id, detail._id, detail.country_id, detail.wallet_currency_code, detail.wallet_currency_code,
-                                    1, wallet, detail.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.ADDED_BY_CARD, "Card : " + card.last_four)
-
-                                detail.wallet = total_wallet_amount;
-
-                                detail.save().then(() => { 
-                                    message = "Wallet Amount Added Sucessfully.";
-                                    res.redirect('/provider_payments');
-                                }, (err) => {
-                                    utils.error_response(err, res)
-                                });
-                            } else {
-                               message = "Add wallet Failed";
-                               res.redirect('/provider_payments');
-                           }
-                       });
-            }else
-            {
-                message = "Please Add Card First";
-                res.redirect('/provider_payments');
-            }
-            
-        });
-        //}
-    });
+    } else {
+        res.redirect('/login');
+    }
 };
+
+
+exports.request_zaincash_payment = function (req, res, next) {
+    if (typeof req.session.provider != "undefined") {
+        var amount = Number(req.body.amount);
+
+        if (amount > 0) {
+            jwt.sign({
+                amount: amount,
+                serviceType: ZAIN_CASH_SERVICE_TYPE,
+                msisdn: ZAIN_CASH_MSISDN,
+                // todo: change website URL
+                redirectUrl: "http://www.yourwebiste.com/zain_order.php",
+            }, ZAIN_CASH_SERCRET_KEY, {
+                expiresIn: '4h'
+            }, function (err, token) {
+                // todo: change test to api.
+                request.post({
+                    url: 'https://test.zaincash.iq/transaction/init',
+                    form: {
+                        token: token,
+                        merchantId: ZAIN_CASH_MERCHANTID,
+                        lang: "ar"
+                    }
+                }, function (err, httpResponse, body) {
+                    var body = JSON.parse(body);
+                    if (body.id)
+                        return res.redirect('https://test.zaincash.iq/transaction/pay?id=' + body.id);
+                    return res.redirect('/payment?msg=cannot_generate_token');
+                })
+            });
+        } else {
+            res.status(400).send({ message: "Invalid Payment Amount" })
+        }
+    } else {
+        res.redirect('/login');
+    }
+}
 
 
 //exports.provider_add_wallet_amount = function (req, res, next) {
