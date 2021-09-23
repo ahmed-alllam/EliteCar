@@ -24,7 +24,8 @@ var rsSchema = new Schema({
     surge_start_hour: {type: Number, default: 0},
     surge_end_hour: {type: Number, default: 0},
     is_surge_hours: {type: Number, default: 0},
-
+    max_negative_balance: {type: Number, default: 0},
+    
     user_miscellaneous_fee:{
         type: Number,
         default: 0
