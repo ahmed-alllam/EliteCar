@@ -1,0 +1,141 @@
+<% include header.html %>
+    <div class="page-title">
+        <h2><span class="fa fa-cogs"></span> <%= config_json.title_edit_profile %></h2>
+    </div>
+    <!-- END PAGE TITLE -->
+
+    <!-- PAGE CONTENT WRAPPER -->
+    <div class="page-content-wrap">
+        <div class="col-md-6 col-sm-8 col-xs-12">
+            <% detail.forEach(function(data){ %>
+                <form class="form-horizontal" method="post" action="/customerupdate">
+                    <div class="panel panel-default">
+                        <div class="panel-body form-group-separated">
+                            <div class="form-group">
+                                <input type="hidden" class="form-control" value="<%= data.id %>" name="id" />
+                                <label class="col-md-3 col-xs-5 control-label"><%= config_json.title_first_name %></label>
+                                <div class="col-md-9 col-xs-7">
+                                    <input type="text" class="form-control" value="<%= data.first_name %>" name="first_name" id='first_name' />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 col-xs-5 control-label"><%= config_json.title_last_name %></label>
+                                <div class="col-md-9 col-xs-7">
+                                    <input type="text" class="form-control" value="<%= data.last_name %>" name="last_name" id='last_name' />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 col-xs-5 control-label"><%= config_json.title_email %></label>
+                                <div class="col-md-9 col-xs-7">
+                                    
+                                  <% if(is_public_demo == true) { %>
+                                 <input type="text" class="form-control" value="<%= config_json.PUBLIC_DEMO_EMAIL %>" name="email" id='email' readonly />
+                                <% } else{ %>
+                                 <input type="text" class="form-control" value="<%= data.email %>" name="email" id='email' readonly />
+                                <% } %>
+                                   
+                                </div>
+                            </div>
+                          
+                            <div class="form-group">
+                                <label class="col-md-3 col-xs-5 control-label"><%= config_json.title_phone %></label>
+                                <div class="col-md-9 col-xs-7">
+                                    <input type="text" class="form-control" value="<%= data.phone %>" name="phone" onkeypress="return isNumberKey(event);" id="phone"
+                                        maxlength="<%= phone_number_length %>" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 col-xs-5 control-label"><%= config_json.title_address %></label>
+                                <div class="col-md-9 col-xs-7">
+                                    <textarea class="form-control" rows="5" name="address" id='address'><%= data.address %></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-3 col-xs-5 control-label"><%= config_json.title_city %></label>
+                                <div class="col-md-9 col-xs-7" id="">
+                                    <select class="form-control select" data-live-search="true" name="city" id="city_name">
+                                        
+                                        <% city_list.forEach(function(city){ %>
+                                        <% 
+                                            if(data.city != null){ 
+                                                if(data.city == city.cityname){ %>
+                                                    <option selected><%= city.cityname %></option>
+                                                <% } else { %>
+                                                    <option><%= city.cityname %></option>
+                                                <% } 
+                                            } else { %>
+                                            <option><%= city.cityname %></option>
+                                                <% } %>
+                                        <% }); %>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-3 col-xs-5 control-label"><%= config_json.title_zipcode %></label>
+                                <div class="col-md-9 col-xs-7">
+                                    <input type="text" class="form-control" value="<%= data.zipcode %>" name="zipcode" id='zipcode' />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-3 col-xs-5 control-label"><%= config_json.title_password %></label>
+                                <div class="col-md-9 col-xs-7">
+                                    <input type="text"  class="form-control" value="" name="password"/>
+                                </div>
+                            </div>
+                             
+                            <div class="form-group">
+                                <div class="col-md-12 col-xs-12">
+                                    <button class="btn btn-primary btn-rounded pull-right" type="submit" name="submit" id="submit" value="submit"><%= config_json.button_save %></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <% }); %>
+        </div>
+    </div>
+    <!-- END PAGE CONTENT WRAPPER -->
+    </div>
+    <!-- END PAGE CONTENT -->
+    </div>
+    <!-- END PAGE CONTAINER -->
+
+    <script type="text/javascript">
+        function isNumberKey(evt){
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+        return false;
+    return true;
+}
+$(document).ready(function() {
+ $(".form-horizontal").validate({
+   rules: {
+     first_name: "required",
+     last_name: "required",
+    email: {
+      required: true,
+      email: true
+    },
+    address: {
+        required: true
+    },
+    phone: {
+      required: true,
+      minlength: <%= phone_number_min_length %>,
+      maxlength: <%= phone_number_length %>
+    },
+    zipcode: {
+        required: true
+    },
+    address: {
+        required: true
+    } 
+   }
+});
+});
+
+    </script>
+    <% include footer_form.html %>
