@@ -3167,6 +3167,24 @@ exports.pay_payment = function (req, res, next) {
                                             trip.is_pending_payments = 0;
                                             trip.cash_payment = cash_payment;
                                             trip.remaining_payment = 0;
+
+                                            if(trip.remaining_wallet_negative_balance != 0) {
+
+                                                if (trip.trip_type == constant_json.TRIP_TYPE_CORPORATE && corporate) {
+                                                    var total_wallet_amount = utils.addWalletHistory(constant_json.USER_UNIQUE_NUMBER, corporate.unique_id, corporate._id, null,
+                                                        corporate.wallet_currency_code, trip.currencycode,
+                                                        trip.wallet_current_rate, trip.remaining_wallet_negative_balance, corporate.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.PAID_TRIP_AMOUNT, "Paid The Remaining Negative Balance After This Trip : " + trip.unique_id);
+                                                    corporate.wallet = total_wallet_amount;
+                                                    corporate.save();
+                                                } else {
+                                                    var total_wallet_amount = utils.addWalletHistory(constant_json.USER_UNIQUE_NUMBER, user.unique_id, user._id, null,
+                                                        user.wallet_currency_code, trip.currencycode,
+                                                        trip.wallet_current_rate, trip.remaining_wallet_negative_balance, user.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.PAID_TRIP_AMOUNT, "Paid The Remaining Negative Balance After This Trip : " + trip.unique_id);
+                                                    user.wallet = total_wallet_amount;
+                                                    user.save();
+                                                }
+                                            }
+
                                             trip.save().then(() => {
                                                 exports.trip_detail_notify(res, trip._id);
                                                 var email_notification = setting_detail.email_notification;
@@ -3229,7 +3247,7 @@ exports.pay_payment = function (req, res, next) {
                                                         trip.payment_transaction.push(response.payment_transaction);
 
 
-                                                        if(trip.remaining_wallet_negative_balance > 0) {
+                                                        if(trip.remaining_wallet_negative_balance != 0) {
 
                                                             if (trip.trip_type == constant_json.TRIP_TYPE_CORPORATE && corporate) {
                                                                 var total_wallet_amount = utils.addWalletHistory(constant_json.USER_UNIQUE_NUMBER, corporate.unique_id, corporate._id, null,
