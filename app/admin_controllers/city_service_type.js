@@ -500,6 +500,7 @@ exports.add_city_type_detail = function (req, res) {
                             surge_end_hour: citytype.surge_end_hour,
                             is_surge_hours: citytype.is_surge_hours,
                             tax: citytype.tax,
+                            max_negative_balance: citytype.max_negative_balance,
                             max_space: citytype.max_space,
                             cancellation_fee: citytype.cancellation_fee,
                             user_miscellaneous_fee: citytype.user_miscellaneous_fee,
@@ -731,6 +732,7 @@ exports.update_city_type_detail = function (req, res) {
                             surge_end_hour: citytype.surge_end_hour,
                             is_surge_hours: citytype.is_surge_hours,
                             tax: citytype.tax,
+                            max_negative_balance: citytype.max_negative_balance,
                             max_space: citytype.max_space,
                             cancellation_fee: citytype.cancellation_fee,
                             is_buiesness: req.body.is_buiesness,
@@ -878,6 +880,7 @@ exports.add_carrental_data = function (req, res, next) {
             base_price_distance: req.body.base_price_distance,
             base_price_time: req.body.base_price_time,
             base_price: req.body.base_price,
+            max_negative_balance: req.body.max_negative_balance,
             price_per_unit_distance: req.body.price_per_unit_distance,
             price_for_total_time: req.body.price_for_total_time,
             provider_profit: req.body.provider_profit
@@ -904,6 +907,7 @@ exports.update_carrental_data = function (req, res, next) {
             base_price_distance: req.body.base_price_distance,
             base_price_time: req.body.base_price_time,
             base_price: req.body.base_price,
+            max_negative_balance: req.body.max_negative_balance,
             price_per_unit_distance: req.body.price_per_unit_distance,
             price_for_total_time: req.body.price_for_total_time
         });
