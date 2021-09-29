@@ -1,6 +1,7 @@
 var User = require('mongoose').model('User');
 var crypto = require('crypto');
-require('./constant');
+require('../controllers/constant');
+var constants = require('../../constants.json');
 var jwt = require('jsonwebtoken');
 var utils = require('../controllers/utils');
 var allemails = require('../controllers/emails');
@@ -9,7 +10,7 @@ var nodemailer = require('nodemailer');
 var Setting = require('mongoose').model('Settings');
 var Provider = require('mongoose').model('Provider');
 var Trip = require('mongoose').model('Trip');
-var request = requite('request');
+var request = require('request');
 var Trip_Service = require('mongoose').model('trip_service');
 var Trip_Location = require('mongoose').model('trip_location');
 var Country = require('mongoose').model('Country');
@@ -162,39 +163,41 @@ exports.card_selection = function (req, res) {
 
 exports.provider_add_wallet_amount = function (req, res, next) {
     if (typeof req.session.provider != "undefined") {
-        payment_id = Number(req.body.payment_id);
-        amount = Number(req.body.amount);
+        payment_id = req.body.payment_id;
         
-        if (payment_id != 0 && amount != 0) {
+        if (typeof payment_id != "undefined") {
             jwt.sign({
                 id: payment_id,
-                msisdn: ZAIN_CASH_MSISDN,
-            }, ZAIN_CASH_SERCRET_KEY, {
+                msisdn: constants.ZAIN_CASH_MSISDN,
+            }, constants.ZAIN_CASH_SERCRET_KEY, {
                 expiresIn: '4h'
             }, function (err, token) {
                 request.post({
                     url: 'https://test.zaincash.iq/transaction/get',
                     form: {
                         token: token,
-                        merchantId: ZAIN_CASH_MERCHANTID
+                        merchantId: constants.ZAIN_CASH_MERCHANTID
                     }
                 }, function (err, httpResponse, body) {
-                    // var transaction = JSON.parse(body);
-                    // console.log(transaction);
-                    // res.render('transaction', transaction);
+                    var transaction = JSON.parse(body);
+                    var amount = transaction.amount;
 
                     Provider.findOne({ _id: req.session.provider._id }).then((provider) => {
-                        var total_wallet_amount = utils.addWalletHistory(type, provider.unique_id, provider._id, provider.country_id, provider.wallet_currency_code, provider.wallet_currency_code,
-                            1, amount, provider.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.ADDED_BY_CARD, "Zain Cash Payment ID " + payment_id);
-        
-                        provider.wallet = total_wallet_amount;
-        
-                        provider.save().then(() => {
-                            message = "Wallet Amount Added Sucessfully.";
-                            res.status(204).send();
-                        }, (err) => {
-                            utils.error_response(err, res)
-                        });
+                        if (provider.wallet_currency_code == "IQD") {
+                            var total_wallet_amount = utils.addWalletHistory(type, provider.unique_id, provider._id, provider.country_id, provider.wallet_currency_code, provider.wallet_currency_code,
+                                1, amount, provider.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.ADDED_BY_CARD, "Zain Cash Payment ID " + payment_id);
+
+                            provider.wallet = total_wallet_amount;
+
+                            provider.save().then(() => {
+                                message = `Amount ${amount} is Added Sucessfully to your Wallet.`;
+                                res.status(204).send();
+                            }, (err) => {
+                                utils.error_response(err, res)
+                            });
+                        } else {
+                            res.status(400).send({ message: "Provider's Wallet Currency Must be in IQD" })
+                        }
                     });
                 })
             });
@@ -211,14 +214,12 @@ exports.request_zaincash_payment = function (req, res, next) {
     if (typeof req.session.provider != "undefined") {
         var amount = Number(req.body.amount);
 
-        if (amount > 0) {
+        if (amount >= 1000) {
             jwt.sign({
-                amount: amount,
-                serviceType: ZAIN_CASH_SERVICE_TYPE,
-                msisdn: ZAIN_CASH_MSISDN,
-                // todo: change website URL
-                redirectUrl: "http://www.yourwebiste.com/zain_order.php",
-            }, ZAIN_CASH_SERCRET_KEY, {
+                amount: 1000,
+                serviceType: constants.ZAIN_CASH_SERVICE_TYPE,
+                msisdn: constants.ZAIN_CASH_MSISDN,
+            }, constants.ZAIN_CASH_SERCRET_KEY, {
                 expiresIn: '4h'
             }, function (err, token) {
                 // todo: change test to api.
@@ -226,7 +227,7 @@ exports.request_zaincash_payment = function (req, res, next) {
                     url: 'https://test.zaincash.iq/transaction/init',
                     form: {
                         token: token,
-                        merchantId: ZAIN_CASH_MERCHANTID,
+                        merchantId: constants.ZAIN_CASH_MERCHANTID,
                         lang: "ar"
                     }
                 }, function (err, httpResponse, body) {

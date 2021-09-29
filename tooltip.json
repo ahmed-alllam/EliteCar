@@ -50,6 +50,7 @@
 	"tooltip_tax":"Percentage of tax on the total invoice.",
 	"tooltip_waiting_time_start_after_minute":"Enter the Integer value for free waiting time. Eg. if entered 5 then waiting time charges will be calculated after 5 minutes.",
 	"tooltip_price_per_unit_distance":"Price per km or mile for this service type.",
+	"tooltip_max_negative_balance":"Maximum Negative Balance User can have for this service type.",
 	"tooltip_distance_for_base_price":"Select the value for free distance covered in base price. Eg. if selected 2 then distance price will not be charged till 2 km or miles.",
 	"tooltip_provider_profit":"Percentage of profit provider or driver should get for this service type.",
 	"tooltip_admin_panel_name":"Admin panel name.",

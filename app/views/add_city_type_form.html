@@ -162,6 +162,19 @@
                                             </div>
                                         </div>
 
+
+                                        <div class="form-group">
+                                            <label class="col-md-6 col-xs-5 control-label"><%= config_json.title_max_negative_balance %></label>
+
+                                            <div class="col-md-6 col-xs-7">
+                                                <div class="col-md-9 ">
+                                                    <input type="text" class="form-control" name="max_negative_balance" id="max_negative_balance" value="<%= city_type_data.max_negative_balance %>"
+                                                           onkeypress="return isNumberKey(event);" />
+                                                </div>
+
+                                            </div>
+                                        </div>
+
                                         <div class="form-group">
                                             <label class="col-md-6 col-xs-5 control-label"><%= config_json.title_price_for_total_unit_time %></label>
 
@@ -631,6 +644,7 @@
                                                         <th><%= config_json.title_time_for_base_price %></th>
                                                         <th><%= config_json.title_base_price %></th>
                                                         <th><%= config_json.title_price_per_unit_distance %></th>
+                                                        <th><%= config_json.title_max_negative_balance %></th>
                                                         <th><%= config_json.title_price_for_total_unit_time %></th>
                                                         <th><%= config_json.title_is_buiesness %></th>
                                                         <th width="15%"><%= config_json.title_is_action %></th>
@@ -645,6 +659,7 @@
                                                             <td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_base_price_time" id="carrental_base_price_time<%=car_rental_data._id%>" value="<%=car_rental_data.base_price_time%>"></td>
                                                             <td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_base_price" id="carrental_base_price<%=car_rental_data._id%>" value="<%=car_rental_data.base_price%>"></td>
                                                             <td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_price_per_unit_distance" id="carrental_price_per_unit_distance<%=car_rental_data._id%>" value="<%=car_rental_data.price_per_unit_distance%>"></td>
+                                                            <td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_max_negative_balance" id="carrental_max_negative_balance<%=car_rental_data._id%>" value="<%=car_rental_data.max_negative_balance%>"></td>
                                                             <td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_price_for_total_time" id="carrental_price_for_total_time<%=car_rental_data._id%>" value="<%=car_rental_data.price_for_total_time%>"></td>
 
 
@@ -875,6 +890,25 @@
 
                                         </div>
                                     </div>
+
+
+                                    <div class="form-group">
+                                        <label class="col-md-6 col-xs-5 control-label"><%= config_json.title_max_negative_balance %></label>
+
+                                        <div class="col-md-6 col-xs-7">
+                                            <div class="col-md-9">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" onkeypress="return isNumberKey(event);" name="max_negative_balance" id="max_negative_balance"
+                                                           />
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-default" type="button" data-toggle="tooltip" data-placement="left" title="" data-original-title="<%=tooltip_json.tooltip_max_negative_balance %>">?</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
 
                                     <div class="form-group">
                                         <label class="col-md-6 col-xs-5 control-label"><%= config_json.title_price_for_total_unit_time %></label>
@@ -1508,7 +1542,7 @@
     }
 
     function add_carrental_form(){
-        $('#car_rental').append('<tr id="new_car_rental"><td><input class="form-control" type="text" name="carrental_typename" id="carrental_typename" value=""></td><td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_base_price_distance" id="carrental_base_price_distance" value=""></td><td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_base_price_time" id="carrental_base_price_time" value=""></td><td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_base_price" id="carrental_base_price" value=""></td><td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_price_per_unit_distance" id="carrental_price_per_unit_distance" value=""></td><td><input class="form-control" type="text" onkeypress="return isNumberKey(event);" name="carrental_price_for_total_time" id="carrental_price_for_total_time" value=""></td><td><select class="form-control select" id="carrental_is_buiesness" name="carrental_is_buiesness"><option value="1" selected = "selected"><%= config_json.title_on %></option><option value="0"><%= config_json.title_off %></option></select></td><td><button type="button" onclick="add_carrental_data()" class="btn btn-primary" style="float:left;text-align:center;margin: 0 auto;"><%= config_json.button_add %></button></td></tr>')
+        $('#car_rental').append('<tr id="new_car_rental"><td><input class="form-control" type="text" name="carrental_typename" id="carrental_typename" value=""></td><td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_base_price_distance" id="carrental_base_price_distance" value=""></td><td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_base_price_time" id="carrental_base_price_time" value=""></td><td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_base_price" id="carrental_base_price" value=""></td><td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_price_per_unit_distance" id="carrental_price_per_unit_distance" value=""></td><td><input onkeypress="return isNumberKey(event);" class="form-control" type="text" name="carrental_max_negative_balance" id="carrental_max_negative_balance" value=""></td><td><input class="form-control" type="text" onkeypress="return isNumberKey(event);" name="carrental_price_for_total_time" id="carrental_price_for_total_time" value=""></td><td><select class="form-control select" id="carrental_is_buiesness" name="carrental_is_buiesness"><option value="1" selected = "selected"><%= config_json.title_on %></option><option value="0"><%= config_json.title_off %></option></select></td><td><button type="button" onclick="add_carrental_data()" class="btn btn-primary" style="float:left;text-align:center;margin: 0 auto;"><%= config_json.button_add %></button></td></tr>')
     }
 
     function add_carrental_data(){
@@ -1519,6 +1553,7 @@
                 base_price_time: $('#carrental_base_price_time').val(),
                 base_price: $('#carrental_base_price').val(),
                 price_per_unit_distance: $('#carrental_price_per_unit_distance').val(),
+                max_negative_balance: $('#carrental_max_negative_balance').val(),
                 price_for_total_time: $('#carrental_price_for_total_time').val(),
                 is_buiesness: $('#carrental_is_buiesness').val(),
                 city_type_id: $('#id').val(),
@@ -1529,9 +1564,9 @@
                 url: '/add_carrental_data',
                 data: json,
                 dataType: "json",
-                success:function(response){
-                    $('#new_car_rental').remove();
-                    $('#car_rental').append('<tr id="new_car_rental'+response.carrental_data._id+'"><td><input class="form-control" type="text" name="carrental_typename" onkeypress="return isNumberKey(event);" id="carrental_typename'+response.carrental_data._id+'" value="'+response.carrental_data.typename+'"></td><td><input class="form-control" type="text" name="carrental_base_price_distance" onkeypress="return isNumberKey(event);" id="carrental_base_price_distance'+response.carrental_data._id+'" value="'+response.carrental_data.base_price_distance+'"></td><td><input class="form-control" type="text" onkeypress="return isNumberKey(event);" name="carrental_base_price_time" id="carrental_base_price_time'+response.carrental_data._id+'" value="'+response.carrental_data.base_price_time+'"></td><td><input class="form-control" type="text" name="carrental_base_price" id="carrental_base_price'+response.carrental_data._id+'"onkeypress="return isNumberKey(event);"  value="'+response.carrental_data.base_price+'"></td><td><input class="form-control" type="text" name="carrental_price_per_unit_distance" onkeypress="return isNumberKey(event);" id="carrental_price_per_unit_distance'+response.carrental_data._id+'" value="'+response.carrental_data.price_per_unit_distance+'"></td><td><input class="form-control" type="text" name="carrental_price_for_total_time" id="carrental_price_for_total_time'+response.carrental_data._id+'"onkeypress="return isNumberKey(event);"  value="'+response.carrental_data.price_for_total_time+'"></td><td><select class="form-control select" id="carrental_is_buiesness'+response.carrental_data._id+'" name="carrental_is_buiesness"><option value="1" selected = "selected"><%= config_json.title_on %></option><option value="0"><%= config_json.title_off %></option></select></td><td><button type="button" onclick="update_carrental_data('+"'"+response.carrental_data._id+"'"+')" class="btn btn-primary" style="float:left;text-align:center;margin: 0 auto;"><%= config_json.button_update %></button> <button type="button" onclick="delete_carrental_data('+"'"+response.carrental_data._id+"'"+')" class="btn btn-danger" style="float:left;text-align:center;margin: 0 auto;"><%= config_json.button_delete %></button></td></tr>')
+                  success:function(response){
+                    $('#new_car_renta l').remove();
+                    $('#car_rental').append('<tr id="new_car_rental'+response.carrental_data._id+'"><td><input class="form-control" type="text" name="carrental_typename" onkeypress="return isNumberKey(event);" id="carrental_typename'+response.carrental_data._id+'" value="'+response.carrental_data.typename+'"></td><td><input class="form-control" type="text" name="carrental_base_price_distance" onkeypress="return isNumberKey(event);" id="carrental_base_price_distance'+response.carrental_data._id+'" value="'+response.carrental_data.base_price_distance+'"></td><td><input class="form-control" type="text" onkeypress="return isNumberKey(event);" name="carrental_base_price_time" id="carrental_base_price_time'+response.carrental_data._id+'" value="'+response.carrental_data.base_price_time+'"></td><td><input class="form-control" type="text" name="carrental_base_price" id="carrental_base_price'+response.carrental_data._id+'"onkeypress="return isNumberKey(event);"  value="'+response.carrental_data.base_price+'"></td><td><input class="form-control" type="text" name="carrental_price_per_unit_distance" onkeypress="return isNumberKey(event);" id="carrental_price_per_unit_distance'+response.carrental_data._id+'" value="'+response.carrental_data.price_per_unit_distance+'"></td><td><input class="form-control" type="text" name="carrental_max_negative_balance" onkeypress="return isNumberKey(event);" id="carrental_max_negative_balance'+response.carrental_data._id+'" value="'+response.carrental_data.max_negative_balance+'"></td><td><input class="form-control" type="text" name="carrental_price_for_total_time" id="carrental_price_for_total_time'+response.carrental_data._id+'"onkeypress="return isNumberKey(event);"  value="'+response.carrental_data.price_for_total_time+'"></td><td><select class="form-control select" id="carrental_is_buiesness'+response.carrental_data._id+'" name="carrental_is_buiesness"><option value="1" selected = "selected"><%= config_json.title_on %></option><option value="0"><%= config_json.title_off %></option></select></td><td><button type="button" onclick="update_carrental_data('+"'"+response.carrental_data._id+"'"+')" class="btn btn-primary" style="float:left;text-align:center;margin: 0 auto;"><%= config_json.button_update %></button> <button type="button" onclick="delete_carrental_data('+"'"+response.carrental_data._id+"'"+')" class="btn btn-danger" style="float:left;text-align:center;margin: 0 auto;"><%= config_json.button_delete %></button></td></tr>')
                 }
             });
         }
@@ -1545,6 +1580,7 @@
                 base_price_time: $('#carrental_base_price_time'+id).val(),
                 base_price: $('#carrental_base_price'+id).val(),
                 price_per_unit_distance: $('#carrental_price_per_unit_distance'+id).val(),
+                max_negative_balance: $('#carrental_max_negative_balance'+id).val(),
                 price_for_total_time: $('#carrental_price_for_total_time'+id).val(),
                 is_buiesness: $('#carrental_is_buiesness'+id).val(),
                 id: id,
@@ -1782,6 +1818,7 @@
                 min_fare: "required",
                 provider_profit: "required",
                 price_per_unit_distance: "required",
+                max_negative_balance: "required",
                 price_for_waiting: "required",
                 price_for_total_time: "required",
                 tax: "required",
@@ -1845,6 +1882,7 @@
                 min_fare: "required",
                 provider_profit: "required",
                 price_per_unit_distance: "required",
+                max_negative_balance: "required",
                 price_for_waiting: "required",
                 price_for_total_time: "required",
                 tax: "required",

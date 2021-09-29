@@ -496,6 +496,7 @@
 		"title_surge_time_end" : "Surge Time End",
 		"title_surge_multiplier" : "Surge Multiplier",
 		"title_provider_profit" : "Provider Profit",
+		"title_max_negative_balance": "Maximum Negative Balance",
 		"title_waiting_time_start_after_minute" : "Waiting Time Start After Minute",
 		"title_cancellation_fee" : "Cancellation Fee",
 		
