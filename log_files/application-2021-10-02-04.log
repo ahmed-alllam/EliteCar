@@ -1,0 +1,184 @@
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"Cast to ObjectId failed for value \"6157280b3c9068534c2fbee\" at path \"_id\" for model \"Trip\"","name":"CastError","stringValue":"\"6157280b3c9068534c2fbee\"","kind":"ObjectId","value":"6157280b3c9068534c2fbee","path":"_id","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee","tip_amount":0},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee","tip_amount":0},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee","tip_amount":0},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157280b3c9068534c2fbfee","tip_amount":0},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"country":""},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"country","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{},"level":"info"}
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}

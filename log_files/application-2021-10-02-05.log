@@ -1,0 +1,9 @@
+{"message":"true","level":"info"}
+{"message":"add","level":"info"}
+{"message":"true","level":"info"}
+{"message":"--------parameter check--------","level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"trip_id":"6157ce021371e7462b0c37ce","tip_amount":0},"level":"info"}
+{"message":"*************************","level":"info"}
+{"message":{"name":"trip_id","type":"string"},"level":"info"}
+{"message":"*************************","level":"info"}

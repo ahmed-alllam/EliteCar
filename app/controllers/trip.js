@@ -92,7 +92,7 @@ exports.create_trip = function (user_data, trip_type, service_type_id, req_data,
                                 }
 
                                 max_negative_balance_in_user_currency = max_negative_balance_in_admin_currency * current_rate;
-                                max_negative_balance = max_negative_balance_in_user_currency;
+                                max_negative_balance = -max_negative_balance_in_user_currency;
                             });
                         });
                     });
@@ -331,138 +331,137 @@ exports.create_trip = function (user_data, trip_type, service_type_id, req_data,
         }
 
     };
-
-
-    exports.nearest_provider_list = function (citytype, req_data, response) {
-
-
-        City.findOne({ _id: citytype.cityid }).then((city_detail) => {
-
-            if (city_detail) {
-
-                var is_check_provider_wallet_amount_for_received_cash_request = city_detail.is_check_provider_wallet_amount_for_received_cash_request;
-                var provider_min_wallet_amount_set_for_received_cash_request = city_detail.provider_min_wallet_amount_set_for_received_cash_request;
-
-                var distance = setting_detail.default_Search_radious / constant_json.DEGREE_TO_KM;
-                var received_trip_from_gender = [];
-                var provider_language = [];
-                var accessibility = [];
-
-                var payment_mode = -1;
-                if (req_data.payment_mode != undefined) {
-                    payment_mode = req_data.payment_mode;
-                }
-                var provider_query = {};
-
-                provider_query["service_type"] = citytype._id;
-                provider_query["is_trip"] = [];
-                provider_query["is_active"] = 1;
-                provider_query["is_available"] = 1;
-
-                if (is_check_provider_wallet_amount_for_received_cash_request && payment_mode == Number(constant_json.PAYMENT_MODE_CASH)) {
-                    wallet_query = { $gte: provider_min_wallet_amount_set_for_received_cash_request };
-                    provider_query["wallet"] = wallet_query;
-                }
-                provider_query["is_vehicle_document_uploaded"] = true;
-
-                provider_query["providerLocation"] = {
-                    $near: [req_data.latitude, req_data.longitude],
-                    $maxDistance: distance
-                };
-
-                provider_admin_type_query = {
-                    $and: [{
-                        "provider_type": Number(constant_json.PROVIDER_TYPE_NORMAL)
-                    }, {
-                        "is_approved": 1
-                    }
-                    ]
-                };
-                provider_partner_type_query = {
-                    $and: [{
-                        "provider_type": Number(constant_json.PROVIDER_TYPE_PARTNER)
-                    }, {
-                        "is_approved": 1
-                    }, {
-                        "is_partner_approved_by_admin": 1
-                    }
-                    ]
-                };
-
-
-                provider_type_query = { $or: [provider_admin_type_query, provider_partner_type_query] };
-
-                accessibility = req_data.accessibility;
-                received_trip_from_gender = req_data.received_trip_from_gender;
-                provider_language = req_data.provider_language;
-
-                var provider_query_and = [];
-                provider_query_and.push(provider_type_query);
-
-                if (accessibility != undefined && accessibility.length > 0) {
-                    accessibility_query = {
-                        $and: [{
-                            "vehicle_detail.accessibility": {
-                                $exists: true,
-                                $ne: [],
-                                $all: accessibility
-                            }
-                        }]
-                    };
-                    provider_query_and.push(accessibility_query);
-                }
-
-                if (provider_language != undefined && provider_language.length > 0) {
-                    languages_exists_query = { $and: [{ "languages": { $in: provider_language } }] };
-                    provider_query_and.push(languages_exists_query);
-                }
-
-                if (received_trip_from_gender != undefined && received_trip_from_gender.length > 0 && received_trip_from_gender.length != 2) {
-                    received_trip_from_gender_exists_query = {
-                        $and: [{
-                            "gender": {
-                                $exists: true,
-                                $all: received_trip_from_gender
-                            }
-                        }]
-                    }
-                    provider_query_and.push(received_trip_from_gender_exists_query);
-                }
-
-
-                provider_query["$and"] = provider_query_and;
-                var query = Provider.find(provider_query);
-                query.exec(function (err, providers) {
-                    if (!providers || providers.length == 0) {
-                        response({
-                            success: false,
-                            error_code: error_message.ERROR_CODE_NO_PROVIDER_FOUND_SELECTED_SERVICE_TYPE_AROUND_YOU
-                        });
-                    } else {
-                        response({
-                            success: true,
-                            message: success_messages.MESSAGE_CODE_YOU_GET_NEARBY_DRIVER_LIST, providers: providers
-                        });
-
-                    }
-
-                });
-            } else {
-                response({ success: false, error_code: error_message.ERROR_CODE_CITY_TYPE_NOT_FOUND });
-            }
-        }, (err) => {
-            console.log(err);
-            res.json({
-                success: false,
-                error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
-            });
-        });
-
-    };
 }
 
+exports.nearest_provider_list = function (citytype, req_data, response) {
 
-    // FIND NEAREST PROVIDER
+
+    City.findOne({ _id: citytype.cityid }).then((city_detail) => {
+
+        if (city_detail) {
+
+            var is_check_provider_wallet_amount_for_received_cash_request = city_detail.is_check_provider_wallet_amount_for_received_cash_request;
+            var provider_min_wallet_amount_set_for_received_cash_request = city_detail.provider_min_wallet_amount_set_for_received_cash_request;
+
+            var distance = setting_detail.default_Search_radious / constant_json.DEGREE_TO_KM;
+            var received_trip_from_gender = [];
+            var provider_language = [];
+            var accessibility = [];
+
+            var payment_mode = -1;
+            if (req_data.payment_mode != undefined) {
+                payment_mode = req_data.payment_mode;
+            }
+            var provider_query = {};
+
+            provider_query["service_type"] = citytype._id;
+            provider_query["is_trip"] = [];
+            provider_query["is_active"] = 1;
+            provider_query["is_available"] = 1;
+
+            if (is_check_provider_wallet_amount_for_received_cash_request && payment_mode == Number(constant_json.PAYMENT_MODE_CASH)) {
+                wallet_query = { $gte: provider_min_wallet_amount_set_for_received_cash_request };
+                provider_query["wallet"] = wallet_query;
+            }
+            provider_query["is_vehicle_document_uploaded"] = true;
+
+            provider_query["providerLocation"] = {
+                $near: [req_data.latitude, req_data.longitude],
+                $maxDistance: distance
+            };
+
+            provider_admin_type_query = {
+                $and: [{
+                    "provider_type": Number(constant_json.PROVIDER_TYPE_NORMAL)
+                }, {
+                    "is_approved": 1
+                }
+                ]
+            };
+            provider_partner_type_query = {
+                $and: [{
+                    "provider_type": Number(constant_json.PROVIDER_TYPE_PARTNER)
+                }, {
+                    "is_approved": 1
+                }, {
+                    "is_partner_approved_by_admin": 1
+                }
+                ]
+            };
+
+
+            provider_type_query = { $or: [provider_admin_type_query, provider_partner_type_query] };
+
+            accessibility = req_data.accessibility;
+            received_trip_from_gender = req_data.received_trip_from_gender;
+            provider_language = req_data.provider_language;
+
+            var provider_query_and = [];
+            provider_query_and.push(provider_type_query);
+
+            if (accessibility != undefined && accessibility.length > 0) {
+                accessibility_query = {
+                    $and: [{
+                        "vehicle_detail.accessibility": {
+                            $exists: true,
+                            $ne: [],
+                            $all: accessibility
+                        }
+                    }]
+                };
+                provider_query_and.push(accessibility_query);
+            }
+
+            if (provider_language != undefined && provider_language.length > 0) {
+                languages_exists_query = { $and: [{ "languages": { $in: provider_language } }] };
+                provider_query_and.push(languages_exists_query);
+            }
+
+            if (received_trip_from_gender != undefined && received_trip_from_gender.length > 0 && received_trip_from_gender.length != 2) {
+                received_trip_from_gender_exists_query = {
+                    $and: [{
+                        "gender": {
+                            $exists: true,
+                            $all: received_trip_from_gender
+                        }
+                    }]
+                }
+                provider_query_and.push(received_trip_from_gender_exists_query);
+            }
+
+
+            provider_query["$and"] = provider_query_and;
+            var query = Provider.find(provider_query);
+            query.exec(function (err, providers) {
+                if (!providers || providers.length == 0) {
+                    response({
+                        success: false,
+                        error_code: error_message.ERROR_CODE_NO_PROVIDER_FOUND_SELECTED_SERVICE_TYPE_AROUND_YOU
+                    });
+                } else {
+                    response({
+                        success: true,
+                        message: success_messages.MESSAGE_CODE_YOU_GET_NEARBY_DRIVER_LIST, providers: providers
+                    });
+
+                }
+
+            });
+        } else {
+            response({ success: false, error_code: error_message.ERROR_CODE_CITY_TYPE_NOT_FOUND });
+        }
+    }, (err) => {
+        console.log(err);
+        res.json({
+            success: false,
+            error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
+        });
+    });
+
+};
+
+
+// FIND NEAREST PROVIDER
 exports.nearest_provider = function (trip, provider_id, response) {
 
 
@@ -1017,7 +1016,7 @@ exports.get_near_by_provider = function (req, res) {
     utils.check_request_params(req.body, [{ name: 'user_id', type: 'string' }, {
         name: 'service_type_id',
         type: 'string'
-    }], function (response) {
+    }], function (response) {        
         if (response.success) {
             User.findOne({ _id: req.body.user_id }).then((user) => {
                 if (user) {
@@ -2611,7 +2610,9 @@ exports.provider_complete_trip = function (req, res) {
 
                                             tripLocation.endTripTime = now;
                                             if (req.body.latitude && req.body.longitude) {
-                                                tripLocation.startTripToEndTripLocations.push([tripLocation.startTripToEndTripLocations[tripLocation.startTripToEndTripLocations.length - 1][0], tripLocation.startTripToEndTripLocations[tripLocation.startTripToEndTripLocations.length - 1][1]]);
+                                                // todo: check if the bug is here
+                                                //tripLocation.startTripToEndTripLocations.push([tripLocation.startTripToEndTripLocations[tripLocation.startTripToEndTripLocations.length - 1][0], tripLocation.startTripToEndTripLocations[tripLocation.startTripToEndTripLocations.length - 1][1]]);
+                                                tripLocation.startTripToEndTripLocations.push([req.body.latitude, req.body.longitude]);
                                             } else {
                                                 req.body.latitude = tripLocation.startTripToEndTripLocations[tripLocation.startTripToEndTripLocations.length - 1][0]
                                                 req.body.longitude = tripLocation.startTripToEndTripLocations[tripLocation.startTripToEndTripLocations.length - 1][1]
@@ -3104,7 +3105,6 @@ exports.pay_payment = function (req, res, next) {
                                         var total = +trip.total + +tip_amount;
                                         total = Number((total).toFixed(2));
                                         trip.total = total;
-
 
                                         var wallet_amount = user.wallet.toFixed(2) * trip.wallet_current_rate;
                                         var is_use_wallet = user.is_use_wallet;
