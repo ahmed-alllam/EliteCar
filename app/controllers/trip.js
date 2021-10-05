@@ -50,7 +50,7 @@ exports.trip_detail_notify = function(res, trip_id){
 }
 
 ////  CREATE TRIP SERVICE //// ////////
-exports.create_trip = function (user_data, trip_type, service_type_id, req_data, response) {
+exports.create_trip = function (user_data, trip_type, service_type_id, req_data, citytype, response) {
 	
     var tripData = req_data;
 	console.log("create trip")
@@ -63,41 +63,38 @@ exports.create_trip = function (user_data, trip_type, service_type_id, req_data,
 
         if (user_data.wallet < 0) {
 
-            Trip_Service.findOne({ _id: tripData.service_type_id }).then((tripservice_data) => {
+            var max_negative_balance = citytype.max_negative_balance;
+            var current_rate = 1;
 
-                var max_negative_balance = tripservice_data.max_negative_balance;
-                var current_rate = 1;
+            if (max_negative_balance > 0) {
 
-                if (max_negative_balance > 0) {
+                Country.findOne({ _id: country_id }).then((country_data) => {
+                    var admin_currencycode = setting_detail.adminCurrencyCode;
+                    var countryCurrencyCode = country_data.currencycode;
 
-                    Country.findOne({ _id: country_id }).then((country_data) => {
-                        var admin_currencycode = setting_detail.adminCurrencyCode;
-                        var countryCurrencyCode = country_data.currencycode;
+                    utils.getCurrencyConvertRate(1, countryCurrencyCode, admin_currencycode, function (response1) {
 
-                        utils.getCurrencyConvertRate(1, countryCurrencyCode, admin_currencycode, function (response1) {
+                        if (response1.success) {
+                            current_rate = response1.current_rate;
+                        } else {
+                            current_rate = 1;
+                        }
 
-                            if (response1.success) {
-                                current_rate = response1.current_rate;
+                        max_negative_balance_in_admin_currency = max_negative_balance * current_rate;
+
+                        utils.getCurrencyConvertRate(1, admin_currencycode, user_data.wallet_currency_code, function (response2) {
+                            if (response2.success) {
+                                current_rate = response2.current_rate;
                             } else {
                                 current_rate = 1;
                             }
 
-                            max_negative_balance_in_admin_currency = max_negative_balance * current_rate;
-
-                            utils.getCurrencyConvertRate(1, admin_currencycode, user_data.wallet_currency_code, function(response2){
-                                if (response2.success) {
-                                    current_rate = response2.current_rate;
-                                } else {
-                                    current_rate = 1;
-                                }
-
-                                max_negative_balance_in_user_currency = max_negative_balance_in_admin_currency * current_rate;
-                                max_negative_balance = -max_negative_balance_in_user_currency;
-                            });
+                            max_negative_balance_in_user_currency = max_negative_balance_in_admin_currency * current_rate;
+                            max_negative_balance = -max_negative_balance_in_user_currency;
                         });
                     });
-                }
-            });
+                });
+            }
         }
 
 
@@ -714,7 +711,7 @@ exports.create = function (req, res) {
                                 //     trip_type = constant_json.TRIP_TYPE_CAR_RENTAL;
                                 // }
 
-                                exports.create_trip(user_data, trip_type, req.body.service_type_id, req.body, function (response) {
+                                exports.create_trip(user_data, trip_type, req.body.service_type_id, req.body, citytype, function (response) {
 
                                     if (response.success) {
                                         var trip = response.trip;
@@ -1016,7 +1013,7 @@ exports.get_near_by_provider = function (req, res) {
     utils.check_request_params(req.body, [{ name: 'user_id', type: 'string' }, {
         name: 'service_type_id',
         type: 'string'
-    }], function (response) {        
+    }], function (response) {
         if (response.success) {
             User.findOne({ _id: req.body.user_id }).then((user) => {
                 if (user) {
@@ -1630,7 +1627,7 @@ exports.trip_cancel_by_user = function (req, res) {
                                                         trip.is_cancellation_fee = 1;
                                                         var current_rate = 1;
 
-                                                        if (cancellationCharges > 0) {
+                                                        if (cancellationCharges > 0 && (Date.now() - trip.user_create_time > 180000)) {
 
                                                             var admin_currencycode = setting_detail.adminCurrencyCode;
                                                             var admin_currency = setting_detail.adminCurrency;

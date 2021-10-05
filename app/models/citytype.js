@@ -11,6 +11,7 @@ var citytypeSchema = new Schema({
     is_surge_hours:{type: Number, default: 0},
     is_zone:{type: Number, default: 0},
     rich_area_surge: {type: Array, default: []},
+    max_negative_balance: {type: Number, default: 0},
     surge_hours: {type: Array, default: [
         {
             "is_surge": false,
