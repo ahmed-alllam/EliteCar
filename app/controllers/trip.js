@@ -1619,7 +1619,7 @@ exports.trip_cancel_by_user = function (req, res) {
                                                     }
                                                 });
 
-                                                if (status == 4) {
+                                                if (status == 2) {
                                                     Trip_Service.findOne({ _id: trip.trip_service_city_type_id }).then((tripservice_data) => {
 
                                                         var cancellationCharges = tripservice_data.cancellation_fee;
