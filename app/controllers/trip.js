@@ -56,250 +56,251 @@ exports.create_trip = function (user_data, trip_type, service_type_id, req_data,
 	console.log("create trip")
 	console.log(tripData)
     if (user_data.is_approved == 0) {
-        response({success: false, error_code: error_message.ERROR_CODE_USER_NOT_APPROVED});
+        response({ success: false, error_code: error_message.ERROR_CODE_USER_NOT_APPROVED });
     } else {
+        Country.findOne({ _id: citytype.countryid }).then((country_data) => {
+            var admin_currencycode = setting_detail.adminCurrencyCode;
+            var countryCurrencyCode = country_data.currencycode;
 
-        var max_negative_balance = 0;
+            utils.getCurrencyConvertRate(1, countryCurrencyCode, admin_currencycode, function (response1) {
 
-        if (user_data.wallet < 0) {
-
-            var max_negative_balance = citytype.max_negative_balance;
-            var current_rate = 1;
-
-            if (max_negative_balance > 0) {
-
-                Country.findOne({ _id: country_id }).then((country_data) => {
-                    var admin_currencycode = setting_detail.adminCurrencyCode;
-                    var countryCurrencyCode = country_data.currencycode;
-
-                    utils.getCurrencyConvertRate(1, countryCurrencyCode, admin_currencycode, function (response1) {
-
-                        if (response1.success) {
-                            current_rate = response1.current_rate;
-                        } else {
-                            current_rate = 1;
-                        }
-
-                        max_negative_balance_in_admin_currency = max_negative_balance * current_rate;
-
-                        utils.getCurrencyConvertRate(1, admin_currencycode, user_data.wallet_currency_code, function (response2) {
-                            if (response2.success) {
-                                current_rate = response2.current_rate;
-                            } else {
-                                current_rate = 1;
-                            }
-
-                            max_negative_balance_in_user_currency = max_negative_balance_in_admin_currency * current_rate;
-                            max_negative_balance = -max_negative_balance_in_user_currency;
-                        });
-                    });
-                });
-            }
-        }
-
-
-        if (user_data.wallet < max_negative_balance) {
-            response({ success: false, trip_id: null, error_code: error_message.ERROR_CODE_YOUR_TRIP_PAYMENT_IS_PENDING });
-        } else {
-            if (tripData.trip_type !== undefined) {
-                trip_type = tripData.trip_type;
-            }
-            var user_id = tripData.user_id;
-            if (trip_type == constant_json.TRIP_TYPE_CORPORATE) {
-                user_id = user_data.user_type_id;
-                tripData.user_type_id = user_data.user_type_id;
-            }
-            Card.find({ user_id: user_id }).then((card) => {
-                if (tripData.payment_mode == Number(constant_json.PAYMENT_MODE_CARD)) {
-                    if (card.length == 0) {
-                        return response({ success: false, error_code: error_message.ERROR_CODE_ADD_CREDIT_CARD_FIRST });
-                    }
+                if (response1.success) {
+                    current_rate = response1.current_rate;
+                } else {
+                    current_rate = 1;
                 }
-                Citytype.findOne({ _id: service_type_id }).then((citytype) => {
-                    if (citytype) {
-                        var city_id = citytype.cityid;
-                        var country_id = citytype.countryid;
-                        City.findOne({ _id: city_id }).then((city_detail) => {
-                            if (city_detail) {
+                var max_negative_balance = citytype.max_negative_balance;
+                max_negative_balance_in_admin_currency = max_negative_balance * current_rate;
 
-                                var is_fixed_fare = false;
-                                var fixed_price = 0;
-                                var received_trip_from_gender = [];
-                                var provider_language = [];
-                                var accessibility = [];
+                utils.getCurrencyConvertRate(1, admin_currencycode, user_data.wallet_currency_code, function (response2) {
+                    if (response2.success) {
+                        current_rate = response2.current_rate;
+                    } else {
+                        current_rate = 1;
+                    }
 
-                                // Start 6 March //
-                                if (tripData.is_fixed_fare != undefined) {
-                                    is_fixed_fare = tripData.is_fixed_fare;
-                                    if (is_fixed_fare) {
-                                        fixed_price = tripData.fixed_price;
-                                    }
+                    max_negative_balance_in_user_currency = max_negative_balance_in_admin_currency * current_rate;
+                    max_negative_balance = -max_negative_balance_in_user_currency;
+
+                    if (user_data.wallet < max_negative_balance) {
+                        response({ success: false, trip_id: null, error_code: error_message.ERROR_CODE_YOUR_TRIP_PAYMENT_IS_PENDING });
+                    } else {
+                        if (tripData.trip_type !== undefined) {
+                            trip_type = tripData.trip_type;
+                        }
+                        var user_id = tripData.user_id;
+                        if (trip_type == constant_json.TRIP_TYPE_CORPORATE) {
+                            user_id = user_data.user_type_id;
+                            tripData.user_type_id = user_data.user_type_id;
+                        }
+                        Card.find({ user_id: user_id }).then((card) => {
+                            if (tripData.payment_mode == Number(constant_json.PAYMENT_MODE_CARD)) {
+                                if (card.length == 0) {
+                                    return response({ success: false, error_code: error_message.ERROR_CODE_ADD_CREDIT_CARD_FIRST });
                                 }
-
-                                if (tripData.received_trip_from_gender != undefined) {
-                                    received_trip_from_gender = tripData.received_trip_from_gender;
-                                }
-
-                                if (tripData.provider_language != undefined) {
-                                    provider_language = tripData.provider_language;
-                                }
-
-                                if (tripData.accessibility != undefined) {
-                                    accessibility = tripData.accessibility;
-                                }
-                                // End 6 March //
-
-
-
-                                var dateNow = new Date();
-                                var schedule_start_time = null;
-                                var server_start_time_for_schedule = null;
-                                var is_schedule_trip = false;
-
-                                if (tripData.start_time) {
-                                    is_schedule_trip = true;
-                                    schedule_start_time = tripData.start_time;
-                                    var addMiliSec = dateNow.getTime() + +schedule_start_time;
-                                    server_start_time_for_schedule = new Date(addMiliSec);
-                                }
-
-                                var trip = new Trip({
-                                    user_last_name: user_data.last_name,
-                                    user_first_name: user_data.first_name,
-                                    service_type_id: service_type_id,
-                                    user_id: user_data._id,
-                                    is_trip_inside_zone_queue: tripData.is_trip_inside_zone_queue,
-                                    token: tripData.token,
-                                    current_provider: null,
-                                    provider_id: null,
-                                    confirmed_provider: null,
-                                    trip_type: trip_type,
-                                    car_rental_id: tripData.car_rental_id,
-                                    is_surge_hours: tripData.is_surge_hours,
-                                    surge_multiplier: tripData.surge_multiplier,
-                                    hotel_name: tripData.hotel_name,
-                                    room_number: tripData.room_number,
-                                    floor: tripData.floor,
-                                    source_address: tripData.source_address,
-                                    destination_address: tripData.destination_address,
-                                    sourceLocation: [tripData.latitude, tripData.longitude],
-                                    destinationLocation: [],
-                                    timezone: city_detail.timezone,
-                                    payment_mode: tripData.payment_mode,
-                                    user_create_time: tripData.user_create_time,
-                                    payment_id: tripData.payment_id,
-                                    unit: city_detail.unit,
-                                    // Start 6 March //
-                                    country_id: country_id,
-                                    city_id: city_detail._id,
-                                    fixed_price: fixed_price,
-                                    is_fixed_fare: is_fixed_fare,
-                                    is_provider_earning_set_in_wallet: false,
-                                    received_trip_from_gender: received_trip_from_gender,
-                                    provider_language: provider_language,
-                                    accessibility: accessibility,
-                                    // End 6 March //
-                                    // start 9 jul //
-                                    is_schedule_trip: is_schedule_trip,
-                                    schedule_start_time: schedule_start_time,
-                                    server_start_time_for_schedule: server_start_time_for_schedule,
-                                    // end 9 jul //
-                                });
-
-                                // if (trip.sourceLocation == null) {
-                                //     trip.sourceLocation = tripData.sourceLocation;
-                                //     // trip.destinationLocation = tripData.destinationLocation;
-                                // }
-                                if (tripData.d_longitude && tripData.d_latitude) {
-                                    trip.destinationLocation = [tripData.d_latitude, tripData.d_longitude];
-                                }
-                                if (tripData.user_type_id) {
-                                    trip.user_type = tripData.user_type;
-                                    trip.user_type_id = tripData.user_type_id;
-                                } else {
-                                    trip.user_type = constant_json.USER_TYPE_NORMAL;
-                                    trip.user_type_id = null;
-                                }
-
-                                if (tripData.device == undefined && trip_type != constant_json.TRIP_TYPE_PROVIDER) {
-                                    trip.is_tip = setting_detail.is_tip;
-                                }
-                                trip.is_toll = setting_detail.is_toll;
-
-                                Country.findOne({ _id: country_id }).then((country_data) => {
-
-                                    var currency = "";
-                                    var currencycode = "";
-                                    if (country_data) {
-                                        currency = country_data.currencysign;
-                                        currencycode = country_data.currencycode;
-                                    }
-                                    trip.currency = currency;
-                                    trip.currencycode = currencycode;
-
-                                    user_data.total_request = user_data.total_request + 1;
-                                    user_data.save();
-
-                                    var service_type_id = tripData.service_type_id;
-                                    if (tripData.car_rental_id) {
-                                        service_type_id = tripData.car_rental_id;
-                                    }
-                                    // trip.save().then(() => {
-                                    Trip_Service.find({
-                                        service_type_id: service_type_id
-                                    }, function (err, tripservice) {
-                                        if (tripservice && tripservice.length > 0) {
-                                            trip.trip_service_city_type_id = tripservice[0]._id;
-                                            if (is_fixed_fare) {
-                                                trip.provider_service_fees = Number((fixed_price * tripservice[0].provider_profit * 0.01).toFixed(3));
-                                            }
-                                        }
-                                        trip.save().then(() => {
-
-                                            var triplocation = new TripLocation({
-                                                tripID: trip._id,
-                                                trip_unique_id: trip.unique_id,
-                                                providerStartTime: dateNow,
-                                                providerStartLocation: [0, 0],
-                                                startTripTime: dateNow,
-                                                startTripLocation: [0, 0],
-                                                endTripTime: dateNow,
-                                                endTripLocation: [0, 0],
-                                                providerStartToStartTripLocations: [],
-                                                startTripToEndTripLocations: [],
-                                                googlePathStartLocationToPickUpLocation: "",
-                                                googlePickUpLocationToDestinationLocation: ""
-                                            });
-                                            triplocation.save(function (error) {
-                                            }, (error) => {
-                                            });
-
-                                            response({
-                                                success: true,
-                                                trip: trip,
-                                                message: success_messages.MESSAGE_CODE_YOUR_FUTURE_TRIP_CREATE_SUCCESSFULLY
-                                            });
-                                        }, (err) => {
-                                            res.json({
-                                                success: false,
-                                                error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
-                                            });
-                                        });
-                                    }).sort({ _id: -1 }).limit(1);
-
-                                    // }, (err) => {
-                                    //     console.log(err);
-                                    //     res.json({
-                                    //         success: false,
-                                    //         error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
-                                    //     });
-                                    // });
-                                });
-
-                            } else {
-                                response({ success: false, error_code: error_message.ERROR_CODE_CITY_TYPE_NOT_FOUND });
-
                             }
+                            Citytype.findOne({ _id: service_type_id }).then((citytype) => {
+                                if (citytype) {
+                                    var city_id = citytype.cityid;
+                                    var country_id = citytype.countryid;
+                                    City.findOne({ _id: city_id }).then((city_detail) => {
+                                        if (city_detail) {
+
+                                            var is_fixed_fare = false;
+                                            var fixed_price = 0;
+                                            var received_trip_from_gender = [];
+                                            var provider_language = [];
+                                            var accessibility = [];
+
+                                            // Start 6 March //
+                                            if (tripData.is_fixed_fare != undefined) {
+                                                is_fixed_fare = tripData.is_fixed_fare;
+                                                if (is_fixed_fare) {
+                                                    fixed_price = tripData.fixed_price;
+                                                }
+                                            }
+
+                                            if (tripData.received_trip_from_gender != undefined) {
+                                                received_trip_from_gender = tripData.received_trip_from_gender;
+                                            }
+
+                                            if (tripData.provider_language != undefined) {
+                                                provider_language = tripData.provider_language;
+                                            }
+
+                                            if (tripData.accessibility != undefined) {
+                                                accessibility = tripData.accessibility;
+                                            }
+                                            // End 6 March //
+
+
+
+                                            var dateNow = new Date();
+                                            var schedule_start_time = null;
+                                            var server_start_time_for_schedule = null;
+                                            var is_schedule_trip = false;
+
+                                            if (tripData.start_time) {
+                                                is_schedule_trip = true;
+                                                schedule_start_time = tripData.start_time;
+                                                var addMiliSec = dateNow.getTime() + +schedule_start_time;
+                                                server_start_time_for_schedule = new Date(addMiliSec);
+                                            }
+
+                                            var trip = new Trip({
+                                                user_last_name: user_data.last_name,
+                                                user_first_name: user_data.first_name,
+                                                service_type_id: service_type_id,
+                                                user_id: user_data._id,
+                                                is_trip_inside_zone_queue: tripData.is_trip_inside_zone_queue,
+                                                token: tripData.token,
+                                                current_provider: null,
+                                                provider_id: null,
+                                                confirmed_provider: null,
+                                                trip_type: trip_type,
+                                                car_rental_id: tripData.car_rental_id,
+                                                is_surge_hours: tripData.is_surge_hours,
+                                                surge_multiplier: tripData.surge_multiplier,
+                                                hotel_name: tripData.hotel_name,
+                                                room_number: tripData.room_number,
+                                                floor: tripData.floor,
+                                                source_address: tripData.source_address,
+                                                destination_address: tripData.destination_address,
+                                                sourceLocation: [tripData.latitude, tripData.longitude],
+                                                destinationLocation: [],
+                                                timezone: city_detail.timezone,
+                                                payment_mode: tripData.payment_mode,
+                                                user_create_time: tripData.user_create_time,
+                                                payment_id: tripData.payment_id,
+                                                unit: city_detail.unit,
+                                                // Start 6 March //
+                                                country_id: country_id,
+                                                city_id: city_detail._id,
+                                                fixed_price: fixed_price,
+                                                is_fixed_fare: is_fixed_fare,
+                                                is_provider_earning_set_in_wallet: false,
+                                                received_trip_from_gender: received_trip_from_gender,
+                                                provider_language: provider_language,
+                                                accessibility: accessibility,
+                                                // End 6 March //
+                                                // start 9 jul //
+                                                is_schedule_trip: is_schedule_trip,
+                                                schedule_start_time: schedule_start_time,
+                                                server_start_time_for_schedule: server_start_time_for_schedule,
+                                                // end 9 jul //
+                                            });
+
+                                            // if (trip.sourceLocation == null) {
+                                            //     trip.sourceLocation = tripData.sourceLocation;
+                                            //     // trip.destinationLocation = tripData.destinationLocation;
+                                            // }
+                                            if (tripData.d_longitude && tripData.d_latitude) {
+                                                trip.destinationLocation = [tripData.d_latitude, tripData.d_longitude];
+                                            }
+                                            if (tripData.user_type_id) {
+                                                trip.user_type = tripData.user_type;
+                                                trip.user_type_id = tripData.user_type_id;
+                                            } else {
+                                                trip.user_type = constant_json.USER_TYPE_NORMAL;
+                                                trip.user_type_id = null;
+                                            }
+
+                                            if (tripData.device == undefined && trip_type != constant_json.TRIP_TYPE_PROVIDER) {
+                                                trip.is_tip = setting_detail.is_tip;
+                                            }
+                                            trip.is_toll = setting_detail.is_toll;
+
+                                            Country.findOne({ _id: country_id }).then((country_data) => {
+
+                                                var currency = "";
+                                                var currencycode = "";
+                                                if (country_data) {
+                                                    currency = country_data.currencysign;
+                                                    currencycode = country_data.currencycode;
+                                                }
+                                                trip.currency = currency;
+                                                trip.currencycode = currencycode;
+
+                                                user_data.total_request = user_data.total_request + 1;
+                                                user_data.save();
+
+                                                var service_type_id = tripData.service_type_id;
+                                                if (tripData.car_rental_id) {
+                                                    service_type_id = tripData.car_rental_id;
+                                                }
+                                                // trip.save().then(() => {
+                                                Trip_Service.find({
+                                                    service_type_id: service_type_id
+                                                }, function (err, tripservice) {
+                                                    if (tripservice && tripservice.length > 0) {
+                                                        trip.trip_service_city_type_id = tripservice[0]._id;
+                                                        if (is_fixed_fare) {
+                                                            trip.provider_service_fees = Number((fixed_price * tripservice[0].provider_profit * 0.01).toFixed(3));
+                                                        }
+                                                    }
+                                                    trip.save().then(() => {
+
+                                                        var triplocation = new TripLocation({
+                                                            tripID: trip._id,
+                                                            trip_unique_id: trip.unique_id,
+                                                            providerStartTime: dateNow,
+                                                            providerStartLocation: [0, 0],
+                                                            startTripTime: dateNow,
+                                                            startTripLocation: [0, 0],
+                                                            endTripTime: dateNow,
+                                                            endTripLocation: [0, 0],
+                                                            providerStartToStartTripLocations: [],
+                                                            startTripToEndTripLocations: [],
+                                                            googlePathStartLocationToPickUpLocation: "",
+                                                            googlePickUpLocationToDestinationLocation: ""
+                                                        });
+                                                        triplocation.save(function (error) {
+                                                        }, (error) => {
+                                                        });
+
+                                                        response({
+                                                            success: true,
+                                                            trip: trip,
+                                                            message: success_messages.MESSAGE_CODE_YOUR_FUTURE_TRIP_CREATE_SUCCESSFULLY
+                                                        });
+                                                    }, (err) => {
+                                                        res.json({
+                                                            success: false,
+                                                            error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
+                                                        });
+                                                    });
+                                                }).sort({ _id: -1 }).limit(1);
+
+                                                // }, (err) => {
+                                                //     console.log(err);
+                                                //     res.json({
+                                                //         success: false,
+                                                //         error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
+                                                //     });
+                                                // });
+                                            });
+
+                                        } else {
+                                            response({ success: false, error_code: error_message.ERROR_CODE_CITY_TYPE_NOT_FOUND });
+
+                                        }
+                                    }, (err) => {
+                                        console.log(err);
+                                        res.json({
+                                            success: false,
+                                            error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
+                                        });
+                                    });
+                                } else {
+                                    response({ success: false, error_code: error_message.ERROR_CODE_CITY_TYPE_NOT_FOUND });
+                                }
+                            }, (err) => {
+                                console.log(err);
+                                res.json({
+                                    success: false,
+                                    error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
+                                });
+                            });
                         }, (err) => {
                             console.log(err);
                             res.json({
@@ -307,27 +308,12 @@ exports.create_trip = function (user_data, trip_type, service_type_id, req_data,
                                 error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
                             });
                         });
-                    } else {
-                        response({ success: false, error_code: error_message.ERROR_CODE_CITY_TYPE_NOT_FOUND });
+
                     }
-                }, (err) => {
-                    console.log(err);
-                    res.json({
-                        success: false,
-                        error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
-                    });
-                });
-            }, (err) => {
-                console.log(err);
-                res.json({
-                    success: false,
-                    error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
                 });
             });
-
-        }
-
-    };
+        });
+    }
 }
 
 exports.nearest_provider_list = function (citytype, req_data, response) {
@@ -1619,7 +1605,7 @@ exports.trip_cancel_by_user = function (req, res) {
                                                     }
                                                 });
 
-                                                if (status == 2) {
+                                                if (status == 2 || status == 4) {
                                                     Trip_Service.findOne({ _id: trip.trip_service_city_type_id }).then((tripservice_data) => {
 
                                                         var cancellationCharges = tripservice_data.cancellation_fee;
@@ -1627,7 +1613,7 @@ exports.trip_cancel_by_user = function (req, res) {
                                                         trip.is_cancellation_fee = 1;
                                                         var current_rate = 1;
 
-                                                        if (cancellationCharges > 0 && (Date.now() - trip.user_create_time > 180000)) {
+                                                        if (cancellationCharges > 0 && ((Date.now() - trip.user_create_time > 180000)  ||  status == 4)  ) {
 
                                                             var admin_currencycode = setting_detail.adminCurrencyCode;
                                                             var admin_currency = setting_detail.adminCurrency;
@@ -1673,7 +1659,7 @@ exports.trip_cancel_by_user = function (req, res) {
 
                                                                     trip.admin_currency = admin_currency;
                                                                     trip.admin_currencycode = admin_currencycode;
-                                                                    trip.payment_mode = constant_json.PAYMENT_MODE_CARD;
+                                                                    trip.payment_mode = constant_json.PAYMENT_MODE_CASH;
 
                                                                     var user_id = req.body.user_id;
                                                                     if (trip_type == constant_json.TRIP_TYPE_CORPORATE) {
