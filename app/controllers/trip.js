@@ -1953,13 +1953,186 @@ exports.trip_cancel_by_provider = function (req, res, next) {
 
                                         user.current_trip_id = null;
                                         user.save();
-                                        exports.trip_detail_notify(res, trip._id);
-                                        res.json({
-                                            success: true,
-                                            message: success_messages.MESSAGE_CODE_FOR_PROVIDER_YOUR_TRIP_CANCELLED_SUCCESSFULLY,
-                                            is_trip_cancelled_by_provider: trip.is_trip_cancelled_by_provider
 
-                                        });
+                                        
+                                        if (trip.is_provider_status >= 2 && trip.is_provider_accepted) {
+                                            Trip_Service.findOne({ _id: trip.trip_service_city_type_id }).then((tripservice_data) => {
+
+                                                var cancellationCharges = tripservice_data.cancellation_fee;
+                                                trip.is_cancellation_fee = 1;
+                                                var current_rate = 1;
+
+                                                if (cancellationCharges > 0) {
+
+                                                    var admin_currencycode = setting_detail.adminCurrencyCode;
+                                                    var admin_currency = setting_detail.adminCurrency;
+
+                                                    var countryCurrencyCode = trip.currencycode;
+
+                                                    City.findOne({ _id: trip.city_id }).then((city) => {
+
+                                                        var is_provider_earning_set_in_wallet_on_other_payment = false;
+                                                        var is_provider_earning_set_in_wallet_on_cash_payment = false;
+                                                        if (city) {
+                                                            is_provider_earning_set_in_wallet_on_other_payment = city.is_provider_earning_set_in_wallet_on_other_payment;
+                                                            is_provider_earning_set_in_wallet_on_cash_payment = city.is_provider_earning_set_in_wallet_on_cash_payment;
+                                                        }
+
+                                                        utils.getCurrencyConvertRate(1, countryCurrencyCode, admin_currencycode, function (response) {
+
+                                                            if (response.success) {
+                                                                current_rate = response.current_rate;
+                                                            } else {
+                                                                current_rate = 1;
+                                                            }
+
+                                                            var total_in_admin_currency = 0;
+                                                            var service_total_in_admin_currency = 0;
+
+
+                                                            total_in_admin_currency = cancellationCharges * current_rate;
+                                                            service_total_in_admin_currency = cancellationCharges * current_rate;
+
+                                                            trip.total_service_fees = cancellationCharges;
+                                                            trip.total = cancellationCharges;
+                                                            trip.total_in_admin_currency = total_in_admin_currency;
+                                                            trip.service_total_in_admin_currency = service_total_in_admin_currency;
+                                                            trip.current_rate = current_rate;
+
+                                                            trip.admin_currency = admin_currency;
+                                                            trip.admin_currencycode = admin_currencycode;
+                                                            trip.payment_mode = constant_json.PAYMENT_MODE_CASH;
+
+                                                            myPayments.pay_payment_on_selected_payment_gateway(Number(constant_json.PAYMENT_BY_STRIPE), provider._id, cancellationCharges, countryCurrencyCode, function (response) {
+                                                                if (response.success) {
+                                                                    trip.is_pending_payments = 0;
+                                                                    trip.is_paid = 1;
+                                                                    trip.card_payment = cancellationCharges;
+                                                                    trip.payment_transaction.push(response.payment_transaction);
+
+                                                                    trip.save().then(() => {
+
+                                                                        if ((trip.payment_mode == Number(constant_json.PAYMENT_MODE_CASH) && is_provider_earning_set_in_wallet_on_cash_payment) || (trip.payment_mode == Number(constant_json.PAYMENT_MODE_CARD) && is_provider_earning_set_in_wallet_on_other_payment)) {
+                                                                            Provider.findOne({ _id: providerID }).then((provider) => {
+                                                                                if (provider) {
+                                                                                    if (provider.provider_type == Number(constant_json.PROVIDER_TYPE_NORMAL)) {
+
+                                                                                        var total_wallet_amount = utils.addWalletHistory(constant_json.PROVIDER_UNIQUE_NUMBER, provider.unique_id, provider._id, provider.country_id,
+                                                                                            provider.wallet_currency_code, trip.currencycode,
+                                                                                            1, cancellationCharges, provider.wallet, constant_json.DEDUCT_WALLET_AMOUNT, constant_json.SET_TRIP_PROFIT, "Cancellation fees Of This Trip : " + trip.unique_id);
+
+                                                                                        provider.wallet = total_wallet_amount;
+                                                                                        provider.save();
+                                                                                    } else {
+                                                                                        Partner.findOne({ _id: trip.provider_type_id }).then((partner) => {
+
+                                                                                            var total_wallet_amount = utils.addWalletHistory(constant_json.PARTNER_UNIQUE_NUMBER, partner.unique_id, partner._id, partner.country_id,
+                                                                                                partner.wallet_currency_code, trip.currencycode,
+                                                                                                1, cancellationCharges, partner.wallet, constant_json.DEDUCT_WALLET_AMOUNT, constant_json.SET_TRIP_PROFIT, "Cancellation fees Of This Trip : " + trip.unique_id);
+
+                                                                                            partner.wallet = total_wallet_amount;
+                                                                                            partner.save();
+                                                                                        });
+                                                                                    }
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                        if (req.body.type !== "Admin") {
+                                                                            exports.trip_detail_notify(res, trip._id);
+                                                                            res.json({
+                                                                                success: true,
+                                                                                message: success_messages.MESSAGE_CODE_FOR_PROVIDER_YOUR_TRIP_CANCELLED_SUCCESSFULLY,
+                                                                                is_pending_payments: trip.is_pending_payments,
+                                                                                is_trip_cancelled: trip.is_trip_cancelled,
+                                                                                cancellationCharges: cancellationCharges
+
+                                                                            });
+                                                                        }
+                                                                    }, (err) => {
+                                                                        console.log(err);
+                                                                        res.json({
+                                                                            success: false,
+                                                                            error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
+                                                                        });
+                                                                    });
+                                                                } else {
+                                                                    utils.getCurrencyConvertRate(1, user.wallet_currency_code, countryCurrencyCode, function (response) {
+                                                                        var wallet_current_rate = 1;
+                                                                        if (response.success) {
+                                                                            wallet_current_rate = response.current_rate;
+                                                                        }
+
+                                                                        trip.total_after_wallet_payment = 0;
+                                                                        trip.remaining_payment = 0;
+                                                                        trip.is_paid = 1;
+                                                                        trip.is_pending_payments = 0;
+
+                                                                        trip.save().then(() => {
+                                                                            if ((trip.payment_mode == Number(constant_json.PAYMENT_MODE_CASH) && is_provider_earning_set_in_wallet_on_cash_payment) || (trip.payment_mode == Number(constant_json.PAYMENT_MODE_CARD) && is_provider_earning_set_in_wallet_on_other_payment)) {
+
+                                                                                Provider.findOne({ _id: provider._id }).then((provider) => {
+                                                                                    if (provider) {
+                                                                                        if (provider.provider_type == Number(constant_json.PROVIDER_TYPE_NORMAL)) {
+
+                                                                                            var total_wallet_amount = utils.addWalletHistory(constant_json.PROVIDER_UNIQUE_NUMBER, provider.unique_id, provider._id, provider.country_id,
+                                                                                                provider.wallet_currency_code, trip.currencycode,
+                                                                                                1, cancellationCharges, provider.wallet, constant_json.DEDUCT_WALLET_AMOUNT, constant_json.SET_TRIP_PROFIT, "Cancellation fees Of This Trip : " + trip.unique_id);
+
+                                                                                            provider.wallet = total_wallet_amount;
+                                                                                            provider.save();
+                                                                                        } else {
+                                                                                            Partner.findOne({ _id: trip.provider_type_id }).then((partner) => {
+
+                                                                                                var total_wallet_amount = utils.addWalletHistory(constant_json.PARTNER_UNIQUE_NUMBER, partner.unique_id, partner._id, partner.country_id,
+                                                                                                    partner.wallet_currency_code, trip.currencycode,
+                                                                                                    1, cancellationCharges, partner.wallet, constant_json.DEDUCT_WALLET_AMOUNT, constant_json.SET_TRIP_PROFIT, "Cancellation fees Of This Trip : " + trip.unique_id);
+
+                                                                                                partner.wallet = total_wallet_amount;
+                                                                                                partner.save();
+                                                                                            });
+                                                                                        }
+                                                                                    }
+                                                                                });
+                                                                            }
+
+                                                                            if (req.body.type !== "Admin") {
+                                                                                exports.trip_detail_notify(res, trip._id);
+                                                                                res.json({
+                                                                                    success: true,
+                                                                                    message: success_messages.MESSAGE_CODE_FOR_PROVIDER_YOUR_TRIP_CANCELLED_SUCCESSFULLY,
+                                                                                    is_pending_payments: trip.is_pending_payments,
+                                                                                    is_trip_cancelled: trip.is_trip_cancelled,
+                                                                                    cancellationCharges: cancellationCharges
+
+                                                                                });
+                                                                            }
+                                                                        }, (err) => {
+                                                                            console.log(err);
+                                                                            res.json({
+                                                                                success: false,
+                                                                                error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
+                                                                            });
+                                                                        });
+                                                                    });
+                                                                }
+                                                            });
+
+                                                        });
+
+                                                    });
+
+                                                } else {
+                                                    if (req.body.type !== "Admin") {
+                                                        exports.trip_detail_notify(res, trip._id);
+                                                        res.json({
+                                                            success: true,
+                                                            message: success_messages.MESSAGE_CODE_FOR_PROVIDER_YOUR_TRIP_CANCELLED_SUCCESSFULLY
+                                                        });
+                                                    }
+                                                }
+
+                                            });
+                                        }
                                     }, (err) => {
                                         console.log(err);
                                         res.json({
