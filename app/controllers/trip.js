@@ -1955,7 +1955,7 @@ exports.trip_cancel_by_provider = function (req, res, next) {
                                         user.save();
 
                                         
-                                        if (trip.is_provider_status >= 2 && trip.is_provider_accepted) {
+                                        if (trip.is_provider_accepted) {
                                             Trip_Service.findOne({ _id: trip.trip_service_city_type_id }).then((tripservice_data) => {
 
                                                 var cancellationCharges = tripservice_data.cancellation_fee;
@@ -2278,87 +2278,91 @@ exports.provider_set_trip_status = function (req, res) {
                                 if (trip.is_trip_cancelled == 0 && trip.is_trip_cancelled_by_provider == 0) {
                                     var is_provider_status = Number(req.body.is_provider_status);
 
-                                    var now = new Date();
-                                    if (is_provider_status == 6) {
-                                        trip.provider_trip_start_time = now;
-                                    }
+                                    var latlong = [0, 0];
+                                    latlong = [Number(req.body.latitude), Number(req.body.longitude)];
 
-                                    if (is_provider_status == 4) {
-                                        trip.provider_arrived_time = now;
-                                    }
+                                    if (is_provider_status == 4 && (utils.getDistanceFromTwoLocation(trip.sourceLocation, latlong) > 0.4)) {
+                                        res.json({ success: false, error_code: error_message.ERROR_CODE_PROVIDER_FAR_FROM_SOURCE_LOCATION });
+                                    } else {
+                                        var now = new Date();
+                                        if (is_provider_status == 6) {
+                                            trip.provider_trip_start_time = now;
+                                        }
 
-                                    trip.is_provider_status = is_provider_status;
-                                    trip.save().then(() => {
-                                        TripLocation.findOne({ tripID: req.body.trip_id }).then((tripLocation) => {
-                                            var latlong = [0, 0];
-                                            latlong = [Number(req.body.latitude), Number(req.body.longitude)];
-                                            switch (is_provider_status) {
+                                        if (is_provider_status == 4) {
+                                            trip.provider_arrived_time = now;
+                                        }
 
-                                                case 2:
-                                                    tripLocation.providerStartTime = now;
-                                                    tripLocation.providerStartLocation = latlong;
-                                                    tripLocation.providerStartToStartTripLocations.push(latlong);
-                                                    break;
-                                                case 6:
-                                                    tripLocation.startTripTime = now;
-                                                    tripLocation.startTripLocation = latlong;
-                                                    tripLocation.startTripToEndTripLocations.push(latlong);
-                                                    break;
-                                            }
-                                            tripLocation.save();
-                                        }, (err) => {
-                                            console.log(err)
-                                        });
+                                        trip.is_provider_status = is_provider_status;
+                                        trip.save().then(() => {
+                                            TripLocation.findOne({ tripID: req.body.trip_id }).then((tripLocation) => {
+                                                switch (is_provider_status) {
+
+                                                    case 2:
+                                                        tripLocation.providerStartTime = now;
+                                                        tripLocation.providerStartLocation = latlong;
+                                                        tripLocation.providerStartToStartTripLocations.push(latlong);
+                                                        break;
+                                                    case 6:
+                                                        tripLocation.startTripTime = now;
+                                                        tripLocation.startTripLocation = latlong;
+                                                        tripLocation.startTripToEndTripLocations.push(latlong);
+                                                        break;
+                                                }
+                                                tripLocation.save();
+                                            }, (err) => {
+                                                console.log(err)
+                                            });
 
 
-                                        User.findOne({ _id: trip.user_id }).then((user) => {
+                                            User.findOne({ _id: trip.user_id }).then((user) => {
 
-                                            var device_token = user.device_token;
-                                            var device_type = user.device_type;
-                                            if (is_provider_status == 6) {
-                                                EmergencyContactDetail.find({
-                                                    user_id: trip.user_id,
-                                                    is_always_share_ride_detail: 1
-                                                }).then((emergencyContactDetails) => {
-                                                    emergencyContactDetails.forEach(function (emergencyContactDetail) {
-                                                        var phoneWithCode = emergencyContactDetail.phone;
-                                                        if (setting_detail.sms_notification) {
-                                                            utils.sendSmsForOTPVerificationAndForgotPassword(phoneWithCode, 7, [user.first_name + " " + user.last_name, provider.first_name + " " + provider.last_name, trip.source_address, trip.destination_address]);
-                                                        }
+                                                var device_token = user.device_token;
+                                                var device_type = user.device_type;
+                                                if (is_provider_status == 6) {
+                                                    EmergencyContactDetail.find({
+                                                        user_id: trip.user_id,
+                                                        is_always_share_ride_detail: 1
+                                                    }).then((emergencyContactDetails) => {
+                                                        emergencyContactDetails.forEach(function (emergencyContactDetail) {
+                                                            var phoneWithCode = emergencyContactDetail.phone;
+                                                            if (setting_detail.sms_notification) {
+                                                                utils.sendSmsForOTPVerificationAndForgotPassword(phoneWithCode, 7, [user.first_name + " " + user.last_name, provider.first_name + " " + provider.last_name, trip.source_address, trip.destination_address]);
+                                                            }
+                                                        });
                                                     });
-                                                });
-                                            }
+                                                }
 
-                                            var value;
-                                            var providerStatusCase = trip.is_provider_status;
-                                            switch (providerStatusCase) {
+                                                var value;
+                                                var providerStatusCase = trip.is_provider_status;
+                                                switch (providerStatusCase) {
 
-                                                case 2:
-                                                    value = push_messages.PUSH_CODE_FOR_PROVIDER_COMMING_YOUR_LOCATION;
-                                                    break;
-                                                case 4:
-                                                    value = push_messages.PUSH_CODE_FOR_PROVIDER_ARRIVED;
-                                                    break;
-                                                case 6:
-                                                    value = push_messages.PUSH_CODE_FOR_YOUR_TRIP_STARTED;
-                                                    break;
-                                            }
-                                            utils.sendPushNotification(constant_json.USER_UNIQUE_NUMBER, device_type, device_token, value, constant_json.PUSH_NOTIFICATION_SOUND_FILE_IN_IOS);
+                                                    case 2:
+                                                        value = push_messages.PUSH_CODE_FOR_PROVIDER_COMMING_YOUR_LOCATION;
+                                                        break;
+                                                    case 4:
+                                                        value = push_messages.PUSH_CODE_FOR_PROVIDER_ARRIVED;
+                                                        break;
+                                                    case 6:
+                                                        value = push_messages.PUSH_CODE_FOR_YOUR_TRIP_STARTED;
+                                                        break;
+                                                }
+                                                utils.sendPushNotification(constant_json.USER_UNIQUE_NUMBER, device_type, device_token, value, constant_json.PUSH_NOTIFICATION_SOUND_FILE_IN_IOS);
+                                            });
+                                            exports.trip_detail_notify(res, trip._id);
+                                            res.json({
+                                                success: true,
+                                                message: success_messages.MESSAGE_CODE_FOR_PROVIDER_YOU_SET_TRIP_STATUS_SUCCESSFULLY,
+                                                trip: trip
+                                            });
+                                        }, (err) => {
+                                            console.log(err);
+                                            res.json({
+                                                success: false,
+                                                error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
+                                            });
                                         });
-                                        exports.trip_detail_notify(res, trip._id);
-                                        res.json({
-                                            success: true,
-                                            message: success_messages.MESSAGE_CODE_FOR_PROVIDER_YOU_SET_TRIP_STATUS_SUCCESSFULLY,
-                                            trip: trip
-                                        });
-                                    }, (err) => {
-                                        console.log(err);
-                                        res.json({
-                                            success: false,
-                                            error_code: error_message.ERROR_CODE_SOMETHING_WENT_WRONG
-                                        });
-                                    });
-
+                                    }
                                 } else {
                                     res.json({
                                         success: false,
