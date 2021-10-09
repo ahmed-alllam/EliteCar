@@ -2974,7 +2974,6 @@ exports.provider_complete_trip = function (req, res) {
 
                                             tripLocation.endTripTime = now;
                                             if (req.body.latitude && req.body.longitude) {
-                                                // todo: check if the bug is here
                                                 //tripLocation.startTripToEndTripLocations.push([tripLocation.startTripToEndTripLocations[tripLocation.startTripToEndTripLocations.length - 1][0], tripLocation.startTripToEndTripLocations[tripLocation.startTripToEndTripLocations.length - 1][1]]);
                                                 tripLocation.startTripToEndTripLocations.push([req.body.latitude, req.body.longitude]);
                                             } else {
@@ -3275,11 +3274,10 @@ exports.provider_complete_trip = function (req, res) {
                                                                                 total_after_promo_payment = total_after_surge_fees - promo_payment;
 
 
-                                                                                if (total_after_promo_payment < 0) {
-                                                                                    total_after_promo_payment = 0;
-                                                                                    promo_payment = total_after_surge_fees;
+                                                                                if (total_after_promo_payment < min_fare) {
+                                                                                    total_after_promo_payment = min_fare;
+                                                                                    promo_payment = total_after_surge_fees - min_fare;
                                                                                 }
-
 
                                                                                 User_promo_use.findOne({ trip_id: trip._id }, function (err, userpromouse) {
                                                                                     userpromouse.user_used_amount = promo_payment;
