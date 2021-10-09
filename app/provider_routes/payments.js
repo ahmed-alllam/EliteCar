@@ -8,7 +8,7 @@ module.exports = function (app) {
     app.route('/provider_card_selection').post(provider_payments.card_selection);
     app.route('/check_card').post(provider_payments.check_card);
 
-    app.route('/provider_add_wallet_amount').post(provider_payments.provider_add_wallet_amount);
+    app.route('/provider_add_wallet_amount').get(provider_payments.provider_add_wallet_amount);
     app.route('/request_zaincash_payment').post(provider_payments.request_zaincash_payment);
 
 };
