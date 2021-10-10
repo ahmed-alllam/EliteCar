@@ -1734,7 +1734,8 @@ exports.apply_promo_code = function (req, res, next) {
                                         if (promocode.user_used_promo < promocode.code_uses) {
                                             User_promo_use.findOne({
                                                 user_id: req.body.user_id,
-                                                promo_id: promocode._id
+                                                promo_id: promocode._id,
+                                                trip_id: trip._id                                            
                                             }).then((used_promo_data) => {
                                                 if (used_promo_data) {
                                                     res.json({

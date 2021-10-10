@@ -417,7 +417,7 @@ exports.promo_used_info = function (req, res, next) {
                 if (user_used_promo_array.length > 0)
                 {
                     Trip.aggregate([condition, {$group: {_id: null, total: {$sum: '$promo_payment'}}}]).then((total_promo_payment) => {
-                        if (!err && total_promo_payment.length > 0)
+                        if (/*!err &&*/ total_promo_payment.length > 0)
                         {
                             res.render("user_used_promo", {promo_detail: promo_detail[0], total_promo_payment: total_promo_payment[0].promo_payment, user_used_promo_array: user_used_promo_array, moment: moment})
                         } else
