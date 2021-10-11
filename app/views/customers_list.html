@@ -451,11 +451,31 @@
         $('#add_wallet_modal').modal('show');
     }
 
-    function isNumberKey(evt){
-        var charCode = (evt.which) ? evt.which : event.keyCode
-        if (charCode > 31 && (charCode < 48 || charCode > 57))
+    function isNumberKey(e){
+        if ([e.keyCode||e.which]==8) //this is to allow backspace
+    return true;
+
+    if ([e.keyCode||e.which]==46 || [e.keyCode||e.which] == 45) //this is to allow decimal point and negative sign
+    {
+      if(isDecimal=='true')
+      {
+        var val = obj.value;
+        if(val.indexOf(".") > -1)
+        {
+            e.returnValue = false;
             return false;
+        }
         return true;
+      }
+      else
+      {
+        e.returnValue = false;
+        return false;
+      }
+    }
+
+    if ([e.keyCode||e.which] < 48 || [e.keyCode||e.which] > 57)
+    e.preventDefault? e.preventDefault() : e.returnValue = false; 
     }
     function export_excel(){
             $.ajax({
