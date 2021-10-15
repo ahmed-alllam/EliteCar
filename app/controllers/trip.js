@@ -1613,7 +1613,7 @@ exports.trip_cancel_by_user = function (req, res) {
                                                         trip.is_cancellation_fee = 1;
                                                         var current_rate = 1;
 
-                                                        if (cancellationCharges > 0 && ((Date.now() - trip.user_create_time > 180000)  ||  status == 4)  ) {
+                                                        if (cancellationCharges > 0 && ((Date.now() - trip.provider_comming_time > 180000)  ||  status == 4)  ) {
 
                                                             var admin_currencycode = setting_detail.adminCurrencyCode;
                                                             var admin_currency = setting_detail.adminCurrency;
@@ -2495,6 +2495,10 @@ exports.provider_set_trip_status = function (req, res) {
 
                                         if (is_provider_status == 4) {
                                             trip.provider_arrived_time = now;
+                                        }
+
+                                        if (is_provider_status == 2) {
+                                            trip.provider_comming_time = now;
                                         }
 
                                         trip.is_provider_status = is_provider_status;

@@ -225,7 +225,7 @@ exports.request_zaincash_payment = function (req, res, next) {
                 amount: 1000,
                 serviceType: constants.ZAIN_CASH_SERVICE_TYPE,
                 msisdn: constants.ZAIN_CASH_MSISDN,
-                redirectUrl: "https://" + setting_detail.server_url + '/provider_add_wallet_amount'
+                redirectUrl: req.protocol + '://' + req.get('host') + '/provider_add_wallet_amount'
             }, constants.ZAIN_CASH_SERCRET_KEY, {
                 expiresIn: '4h'
             }, function (err, token) {

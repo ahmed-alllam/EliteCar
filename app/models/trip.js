@@ -228,6 +228,10 @@ var Trip = new Schema({
         type: Date,
         default: Date.now
     },
+    provider_comming_time: {
+        type: Date,
+        default: Date.now
+    },
     provider_arrived_time: {
         type: Date,
         default: Date.now
