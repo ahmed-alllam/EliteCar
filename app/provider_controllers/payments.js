@@ -162,70 +162,68 @@ exports.card_selection = function (req, res) {
 
 
 exports.provider_add_wallet_amount = function (req, res, next) {
-    if (typeof req.session.provider != "undefined") {
-        var request_token = req.query.token;
+    var request_token = req.query.token;
 
-        if (typeof request_token != "undefined") {
-            var payment_id = jwt.decode(request_token).id;
+    if (typeof request_token != "undefined") {
+        var payment_id = jwt.decode(request_token).id;
 
-            if (typeof payment_id != "undefined") {
+        if (typeof payment_id != "undefined") {
+            jwt.sign({
+                id: payment_id,
+                msisdn: constants.ZAIN_CASH_MSISDN,
+            }, constants.ZAIN_CASH_SERCRET_KEY, {
+                expiresIn: '4h'
+            }, function (err, token) {
+                request.post({
+                    url: 'https://test.zaincash.iq/transaction/get',
+                    form: {
+                        token: token,
+                        merchantId: constants.ZAIN_CASH_MERCHANTID
+                    }
+                }, function (err, httpResponse, body) {
+                    var transaction = JSON.parse(body);
+                    var provider_id = transaction.orderId;
+                    var amount = transaction.amount;
 
-                jwt.sign({
-                    id: payment_id,
-                    msisdn: constants.ZAIN_CASH_MSISDN,
-                }, constants.ZAIN_CASH_SERCRET_KEY, {
-                    expiresIn: '4h'
-                }, function (err, token) {
-                    request.post({
-                        url: 'https://test.zaincash.iq/transaction/get',
-                        form: {
-                            token: token,
-                            merchantId: constants.ZAIN_CASH_MERCHANTID
+                    Provider.findOne({ _id: provider_id }).then((provider) => {
+                        if (provider.wallet_currency_code == "IQD") {
+                            var total_wallet_amount = utils.addWalletHistory(type, provider.unique_id, provider._id, provider.country_id, provider.wallet_currency_code, provider.wallet_currency_code,
+                                1, amount, provider.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.ADDED_BY_CARD, "Zain Cash Payment ID " + payment_id);
+
+                            provider.wallet = total_wallet_amount;
+
+                            provider.save().then(() => {
+                                res.status(204).send({message: `Amount ${amount} is Added Sucessfully to your Wallet.`});
+                            }, (err) => {
+                                utils.error_response(err, res)
+                            });
+                        } else {
+                            res.status(400).send({ message: "Provider's Wallet Currency Must be in IQD" })
                         }
-                    }, function (err, httpResponse, body) {
-                        var transaction = JSON.parse(body);
-                        var amount = transaction.amount;
-
-                        Provider.findOne({ _id: req.session.provider._id }).then((provider) => {
-                            if (provider.wallet_currency_code == "IQD") {
-                                var total_wallet_amount = utils.addWalletHistory(type, provider.unique_id, provider._id, provider.country_id, provider.wallet_currency_code, provider.wallet_currency_code,
-                                    1, amount, provider.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.ADDED_BY_CARD, "Zain Cash Payment ID " + payment_id);
-
-                                provider.wallet = total_wallet_amount;
-
-                                provider.save().then(() => {
-                                    res.status(204).send({message: `Amount ${amount} is Added Sucessfully to your Wallet.`});
-                                }, (err) => {
-                                    utils.error_response(err, res)
-                                });
-                            } else {
-                                res.status(400).send({ message: "Provider's Wallet Currency Must be in IQD" })
-                            }
-                        });
-                    })
-                });
-            } else {
-                res.status(400).send({ message: "Invalid token" })
-            }
+                    });
+                })
+            });
         } else {
-            res.status(400).send({ message: "Invalid Payment ID or Amount" })
+            res.status(400).send({ message: "Invalid token" })
         }
     } else {
-        res.redirect('/login');
+        res.status(400).send({ message: "Invalid Payment ID" })
     }
 };
 
 
 exports.request_zaincash_payment = function (req, res, next) {
-    if (typeof req.session.provider != "undefined") {
-        var amount = Number(req.body.amount);
+    var amount = Number(req.query.amount);
+    var provider_id = req.query.provider_id;
 
+    if (typeof provider_id !== undefined) {
         if (amount >= 1000) {
             jwt.sign({
-                amount: 1000,
+                amount: amount,
                 serviceType: constants.ZAIN_CASH_SERVICE_TYPE,
                 msisdn: constants.ZAIN_CASH_MSISDN,
-                redirectUrl: req.protocol + '://' + req.get('host') + '/provider_add_wallet_amount'
+                redirectUrl: req.protocol + '://' + req.get('host') + '/provider_add_wallet_amount',
+                orderId: provider_id
             }, constants.ZAIN_CASH_SERCRET_KEY, {
                 expiresIn: '4h'
             }, function (err, token) {
@@ -240,7 +238,7 @@ exports.request_zaincash_payment = function (req, res, next) {
                 }, function (err, httpResponse, body) {
                     var body = JSON.parse(body);
                     if (body.id)
-                        return res.redirect('https://test.zaincash.iq/transaction/pay?id=' + body.id);
+                        return res.json({'url': 'https://test.zaincash.iq/transaction/pay?id=' + body.id});
                     return res.redirect('/payment?msg=cannot_generate_token');
                 })
             });
@@ -248,7 +246,7 @@ exports.request_zaincash_payment = function (req, res, next) {
             res.status(400).send({ message: "Invalid Payment Amount" })
         }
     } else {
-        res.redirect('/login');
+        res.status(400).send({ message: "Invalid Provider ID" })
     }
 }
 
