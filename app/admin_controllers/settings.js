@@ -56,12 +56,11 @@ exports.update_app_key = function (req, res, next) {
 };
 
 
-exports.twilio_settings_update = function (req, res) {
+exports.jormall_settings_update = function (req, res) {
     Settings.findOne({}).then((setting) => { 
-        setting.twilio_account_sid = (req.body.twilio_account_sid).trim();
-        setting.twilio_auth_token = (req.body.twilio_auth_token).trim();
-        setting.twilio_number = req.body.twilio_number;
-        setting.twiml_url = req.body.twiml_url;
+        setting.josmsservice_acc_name = (req.body.josmsservice_acc_name).trim();
+        setting.josmsservice_acc_password = (req.body.josmsservice_acc_password).trim();
+        setting.josmsservice_sender_id = req.body.josmsservice_sender_id;
         setting.save();
         setting_detail = setting;
     });

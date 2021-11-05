@@ -20,40 +20,31 @@
                     </ul>
                 </div>
                 <div class="panel-body">
-                    <form action="admin_twilio_settings_update" role="form" class="form-horizontal" method="post">
+                   <form action="admin_jormall_settings_update" role="form" class="form-horizontal" method="post">
                         <div class="form-group">
-                            <label><%= config_json.title_twilio_account_sid %></label>
+                            <label><%= config_json.title_josmsservice_acc_name %></label>
                             <div class="input-group">
-                                <input type="text" class="form-control" name="twilio_account_sid" value="<%= setting.twilio_account_sid %>" />
+                                <input type="text" class="form-control" name="josmsservice_acc_name" value="<%= setting.josmsservice_acc_name %>" />
                                 <span class="input-group-btn">
                                     <button class="btn btn-default" type="button" data-toggle="tooltip" data-placement="right" title="" data-original-title="<%= tooltip_json.tooltip_twillio_account_sid %>">?</button>
                                 </span>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label><%= config_json.title_twilio_auth_token %></label>
+                            <label><%= config_json.title_josmsservice_acc_password %></label>
                             <div class="input-group">
-                                <input type="text" class="form-control" name="twilio_auth_token" value="<%= setting.twilio_auth_token %>" />
+                                <input type="text" class="form-control" name="josmsservice_acc_password" value="<%= setting.josmsservice_acc_password %>" />
                                 <span class="input-group-btn">
                                     <button class="btn btn-default" type="button" data-toggle="tooltip" data-placement="right" title="" data-original-title="<%= tooltip_json.tooltip_twilio_auth_token %>">?</button>
                                 </span>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label><%= config_json.title_twilio_number %></label>
+                            <label><%= config_json.title_josmsservice_sender_id %></label>
                             <div class="input-group">
-                                <input type="text" class="form-control" name="twilio_number" value="<%= setting.twilio_number %>" />
+                                <input type="text" class="form-control" name="josmsservice_sender_id" value="<%= setting.josmsservice_sender_id %>" />
                                 <span class="input-group-btn">
                                     <button class="btn btn-default" type="button" data-toggle="tooltip" data-placement="right" title="" data-original-title="<%= tooltip_json.tooltip_twilio_number %>">?</button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label><%=config_json.title_twilio_url %></label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="twiml_url" value="<%= setting.twiml_url %>" />
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button" data-toggle="tooltip" data-placement="right" title="" data-original-title="<%= config_json.tooltip_twiml_url %>">?</button>
                                 </span>
                             </div>
                         </div>
@@ -62,7 +53,7 @@
                             <input type="submit" name="update" value="<%= config_json.button_update_changes %>" class="btn btn-success btn-block">
                             <!--</div>-->
                         </div>
-                    </form>
+                    </form> 
                 </div>
             </div>
         </div>

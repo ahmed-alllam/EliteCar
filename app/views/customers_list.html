@@ -39,6 +39,7 @@
                                         <option id="accepted_requests" value='accepted_request'><%= config_json.title_accepted_request %></option>
                                         <option id="completed_requests" value='completed_request'><%= config_json.title_completed %></option>
                                         <option id="cancelled_requests" value='cancelled_request'><%= config_json.title_cancelled_request %></option>
+                                        <option id="wallets" value='wallet'><%= config_json.title_wallet %></option>
 <!--                                        <option id="emails" value='email'><%= config_json.title_email %></option>-->
                                     </select>
                                 </div>
@@ -381,6 +382,8 @@
     $(document).ready(function () {
         
         $('#<%= sort_field %>s').prop("selected",true);
+
+        console.log("rgrgr " + '<%= sort_field %>')
 
         $('#start_date').datepicker({
             format: 'yyyy-mm-dd',

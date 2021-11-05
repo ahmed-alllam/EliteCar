@@ -1,5 +1,6 @@
 var utils = require('./utils');
 require('./constant');
+var request = require('request');
 var Card = require('mongoose').model('Card');
 var Citytype = require('mongoose').model('city_type');
 var moment = require('moment');
@@ -153,50 +154,18 @@ exports.sendMassSMS = function (to, msg) {
     });
 };
 
-
 exports.sendSMS = function (to, msg) {
 	console.log("------send sms------------");
-    Settings.findOne({}, function (err, setting) {
-		console.log(setting)
-        if (setting)
-        {
 
-            var twilio_account_sid = setting.twilio_account_sid;
-            var twilio_auth_token = setting.twilio_auth_token;
-            var twilio_number = setting.twilio_number;
-            if (twilio_account_sid != "" && twilio_auth_token != "" && twilio_number != "")
-            {
-                var client = new twilio.RestClient(twilio_account_sid, twilio_auth_token);
-					console.log("----client----");
-                client.messages.create({
-                    body: msg,
-                    to: to, // Text this number
-                    from: twilio_number // From a valid Twilio number
-                }, function (err, message) {
-					
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log("here send sms ... ... ...");
-                    }
-                });
+    var josmsservice_acc_name = setting_detail.josmsservice_acc_name;
+    var josmsservice_acc_password = setting_detail.josmsservice_acc_password;
+    var josmsservice_sender_id = setting_detail.josmsservice_sender_id;
 
-                /*var client = twilio(twilio_account_sid, twilio_auth_token, twilio_number);
-                 
-                 try {
-                 client.sendMessage({
-                 to: to,
-                 from: twilio_number,
-                 body: msg
-                 });
-                 console.log("send sms ... ... ...");
-                 
-                 } catch (error) {
-                 console.error(error);
-                 }*/
-            }
-        }
-    });
+    url = 'http://josmsservice.com/smsonline/msgservicejo.cfm?numbers=' + to + '&senderid=' + josmsservice_sender_id + '&AccName=' + josmsservice_acc_name + '&AccPass='+ josmsservice_acc_password + '&msg=' + msg + '&requesttimeout=5000000'
+
+    request.post(url, ((error, res, body) => {
+        console.log(JSON.stringify(error))
+    }));
 }
 
 exports.sendSmsForOTPVerificationAndForgotPassword = function (phoneWithCode, smsID, extraParam) {

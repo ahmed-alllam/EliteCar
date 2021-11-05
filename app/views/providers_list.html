@@ -35,7 +35,7 @@
                                             <option id="completed_requests" value='completed_request'><%= config_json.title_completed %></option>
                                             <option id="cancelled_requests" value='cancelled_request'><%= config_json.title_cancelled_request %></option>
                                             <option id="emails" value='email'><%= config_json.title_email %></option>
-                                            
+                                            <option id="wallets" value='wallet'><%= config_json.title_wallet %></option>
                                         </select>
                                     </div>
                                 </div>
@@ -67,21 +67,31 @@
                                             <option value='first_name' selected><%= config_json.title_name %></option>
                                             <option value='email'><%= config_json.title_email %></option>
                                             <option value='city'><%= config_json.title_city %></option>
+                                            <option value='phone'><%= config_json.title_phone %></option>
                                             <% } else if(search_item == "email") { %>
                                             <option value='unique_id'><%= config_json.title_id %></option>
                                             <option value='first_name'><%= config_json.title_name %></option>
                                             <option value='email' selected><%= config_json.title_email %></option>
                                             <option value='city'><%= config_json.title_city %></option>
+                                            <option value='phone'><%= config_json.title_phone %></option>
                                             <% } else if(search_item == "unique_id") { %>
                                             <option value='unique_id' selected><%= config_json.title_id %></option>
                                             <option value='first_name'><%= config_json.title_name %></option>
                                             <option value='email'><%= config_json.title_email %></option>
                                             <option value='city'><%= config_json.title_city %></option>
-                                            <% } else{ %>
+                                            <option value='phone'><%= config_json.title_phone %></option>
+                                            <% } else if (search_item == "city"){ %>
                                             <option value='unique_id'><%= config_json.title_id %></option>
                                             <option value='first_name' ><%= config_json.title_name %></option>
                                             <option value='email' ><%= config_json.title_email %></option>
                                             <option value='city' selected><%= config_json.title_city %></option>
+                                            <option value='phone'><%= config_json.title_phone %></option>
+                                            <% } else { %>
+                                            <option value='unique_id'><%= config_json.title_id %></option>
+                                            <option value='first_name' ><%= config_json.title_name %></option>
+                                            <option value='email' ><%= config_json.title_email %></option>
+                                            <option value='city'><%= config_json.title_city %></option>
+                                            <option value='phone' selected><%= config_json.title_phone %></option>
                                             <% } %>
                                         </select>
                                     </div>

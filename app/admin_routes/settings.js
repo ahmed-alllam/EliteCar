@@ -5,7 +5,7 @@ var session = require("express-session");
 module.exports = function (app) {
 
     app.route('/installation_settings').get(admin.installation_settings);
-    app.route('/admin_twilio_settings_update').post(admin.twilio_settings_update);
+    app.route('/admin_jormall_settings_update').post(admin.jormall_settings_update);    
     app.route('/admin_email_settings_update').post(admin.email_settings_update);
     app.route('/admin_google_api_key_settings_update').post(admin.google_api_key_settings_update);
     app.route('/admin_gcm_api_key_settings_update').post(admin.gcm_api_key_settings_update);

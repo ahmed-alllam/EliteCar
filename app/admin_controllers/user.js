@@ -233,8 +233,8 @@ exports.list = function (req, res, next) {
             }
         } else {
             if (item != undefined) {
-
-                query[item] = new RegExp(value, 'i');
+                value = value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+                query[item] = new RegExp('.*' + value + '.*', 'i');
             }
         }
         User.count({$and: [{$or: [query1, query2, query3, query4, query5, query6]}, query]}, function (err, userscount) {
