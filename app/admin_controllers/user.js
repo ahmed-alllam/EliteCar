@@ -939,9 +939,11 @@ exports.add_wallet_amount = function (req, res, next) {
         User.findById(req.body.user_id, function (err, user_data) {
             if (user_data)
             {
+                admin_type = req.session.admin.type == 0 ? "Admin" : "Sub Admin";
+
                 var wallet = utils.precisionRoundTwo(Number(req.body.wallet));
                 var total_wallet_amount = utils.addWalletHistory(constant_json.USER_UNIQUE_NUMBER, user_data.unique_id, user_data._id, user_data.country_id, user_data.wallet_currency_code, user_data.wallet_currency_code,
-                        1, wallet, user_data.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.ADDED_BY_ADMIN, "By Admin")
+                    1, wallet, user_data.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.ADDED_BY_ADMIN, "By " + admin_type + " "+ req.session.admin.email + " " + req.session.admin.username);
 
                 user_data.wallet = total_wallet_amount;
                 user_data.save();

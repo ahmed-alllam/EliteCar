@@ -1403,10 +1403,12 @@ exports.admin_add_provider_wallet = function (req, res, next) {
         Provider.findById(req.body.provider_id).then((provider_data) => { 
             if (provider_data)
             {
+                   
+                admin_type = req.session.admin.type == 0 ? "Admin" : "Sub Admin";
+
                 var wallet = utils.precisionRoundTwo(Number(req.body.wallet));
                 var total_wallet_amount = utils.addWalletHistory(constant_json.PROVIDER_UNIQUE_NUMBER, provider_data.unique_id, provider_data._id, provider_data.country_id, provider_data.wallet_currency_code, provider_data.wallet_currency_code,
-                        1, wallet, provider_data.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.ADDED_BY_ADMIN, "By Admin")
-
+                        1, wallet, provider_data.wallet, constant_json.ADD_WALLET_AMOUNT, constant_json.ADDED_BY_ADMIN, "By " + admin_type + " "+ req.session.admin.email + " " + req.session.admin.username)
                 provider_data.wallet = total_wallet_amount;
                 //provider_data.wallet = provider_data.wallet + Number(req.body.wallet);
                 provider_data.save().then(() => { 

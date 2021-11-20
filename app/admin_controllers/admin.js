@@ -87,7 +87,9 @@ var URL_ARRAY = [
     {value: 'edit_admin', label: 'Edit Document'},
     {value: 'settings', label: 'Settings'},
     {value: 'installation_settings', label: 'Installation Setting'},
-    {value: 'send_mass_notification', label: 'Sms Mass Notification'}
+    {value: 'send_mass_notification', label: 'Sms Mass Notification'},
+    {value: 'add_provider_wallet_amount', label: 'Add Provider Wallet Amount'},
+    {value: 'add_user_wallet_amount', label: 'Add User Wallet Amount'},
 ];
 
 exports.support = function (req, res) {

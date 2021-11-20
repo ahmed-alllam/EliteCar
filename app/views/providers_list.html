@@ -321,8 +321,7 @@
                                             
                                             <% if(data.is_approved == 1){ %>
                                                 <li>
-                                                    <button type="button" onclick="add_wallet('<%= data._id %>')" class="btn btn-default" style="width:100%;"><%= config_json.button_add_wallet %></button>
-                                                    
+                                                    <button type="button" id="add_wallet" onclick="add_wallet('<%= data._id %>')" class="btn btn-default" style="width:100%;"><%= config_json.button_add_wallet %></button>                                                    
                                                 </li>
                                             <% } %>
                                             
@@ -484,6 +483,26 @@ function isNumberKey(e){
 
 
     $(document).ready(function() {
+
+
+        $.ajax({
+                type: 'POST',
+                url: '/session_data',
+                data: {'type': 'admin'},
+                dataType: "json",
+                success: function (response) {
+                    if(response.success) {
+                        if(response.session_data.type == 1) {
+                            if (response.session_data.url_array.indexOf('add_provider_wallet_amount') == -1) {
+                                $('#add_wallet').hide();
+                            }
+                        }
+                    } else {
+                        window.location = 'payment_pending'
+                    }
+                }
+        });
+    
 
 
     $('#<%= sort_field %>s').prop("selected",true);
