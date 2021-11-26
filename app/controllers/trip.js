@@ -2485,7 +2485,7 @@ exports.provider_set_trip_status = function (req, res) {
                                     var latlong = [0, 0];
                                     latlong = [Number(req.body.latitude), Number(req.body.longitude)];
 
-                                    if (is_provider_status == 4 && (utils.getDistanceFromTwoLocation(trip.sourceLocation, latlong) > 0.4)) {
+                                    if (is_provider_status == 4 && (utils.getDistanceFromTwoLocation(trip.sourceLocation, latlong) > 0.25)) {
                                         res.json({ success: false, error_code: error_message.ERROR_CODE_PROVIDER_FAR_FROM_SOURCE_LOCATION });
                                     } else {
                                         var now = new Date();
