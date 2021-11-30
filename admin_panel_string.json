@@ -903,5 +903,9 @@
 	"title_request_send_to_no_of_providers": "Request Send To Number Of Driver",
 	"title_find_nearest_driver_type": "Nearest Driver Type",
 	"single": "Single",
-	"multiple": "Multiple"
+	"multiple": "Multiple",
+
+
+	"title_max_provider_distance_for_arrival": "Maximum Provider Distance for arrival in meters",
+	"title_percent_taken_from_user_wallet": "Percentage taken from user wallet for trip cost"
 }

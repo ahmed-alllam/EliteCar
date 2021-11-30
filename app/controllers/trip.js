@@ -2485,7 +2485,7 @@ exports.provider_set_trip_status = function (req, res) {
                                     var latlong = [0, 0];
                                     latlong = [Number(req.body.latitude), Number(req.body.longitude)];
 
-                                    if (is_provider_status == 4 && (utils.getDistanceFromTwoLocation(trip.sourceLocation, latlong) > 0.25)) {
+                                    if (is_provider_status == 4 && (utils.getDistanceFromTwoLocation(trip.sourceLocation, latlong) > setting_detail.max_provider_distance_for_arrival / 1000)) {
                                         res.json({ success: false, error_code: error_message.ERROR_CODE_PROVIDER_FAR_FROM_SOURCE_LOCATION });
                                     } else {
                                         var now = new Date();
@@ -3483,8 +3483,8 @@ exports.pay_payment = function (req, res, next) {
                                         var total_after_wallet_payment = total;
                                         if (wallet_amount > 0 && total_after_wallet_payment > 0 && is_use_wallet == constant_json.YES) {
 
-                                            if (wallet_amount > total_after_wallet_payment * 0.25) {
-                                                wallet_payment = total_after_wallet_payment * 0.25;
+                                            if (wallet_amount > total_after_wallet_payment * setting_detail.percent_taken_from_user_wallet / 100) {
+                                                wallet_payment = total_after_wallet_payment * setting_detail.percent_taken_from_user_wallet / 100;
                                             } else {
                                                 wallet_payment = wallet_amount;
                                             }

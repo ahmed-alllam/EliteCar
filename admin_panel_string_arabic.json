@@ -834,7 +834,12 @@
     "airport_to_city_price": "Airport to City Price",
     "city_to_city_price": "City to City Price",
     "TRIP_TYPE_NORMAL_STRING" : "عرف مشروع F",
-    "TRIP_TYPE_VISITOR_STRING" : "المنطقة الزمنية  نية للنقل الت"
+    "TRIP_TYPE_VISITOR_STRING" : "المنطقة الزمنية  نية للنقل الت",
+
+
+
+    "title_max_provider_distance_for_arrival": "اقصي بعد للكابتن عن مكان الوصول بالميتر",
+    "title_percent_taken_from_user_wallet": "النسبه المئويه اللتي تخصم من محفظه الراكب"
     
     
     }

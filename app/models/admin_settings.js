@@ -88,7 +88,10 @@ module.exports = mongoose.model('Settings', new Schema({
     firebase_databaseURL: {type: String, default: ""},
     firebase_projectId: {type: String, default: ""},
     firebase_storageBucket: {type: String, default: ""},
-    firebase_messagingSenderId: {type: String, default: ""}
+    firebase_messagingSenderId: {type: String, default: ""},
+
+    max_provider_distance_for_arrival: {type: Number, default: 250},
+    percent_taken_from_user_wallet: {type: Number, default: 25},
 })
 );
 
