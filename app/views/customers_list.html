@@ -323,7 +323,7 @@
                                             <% } %>
                                             <% if(data.is_approved == 1){ %>
                                                 <li>
-                                                    <button type="button" id="add_wallet" onclick="add_wallet('<%= data._id %>')" class="btn btn-default" style="width:100%;"><%= config_json.button_add_wallet %></button>                                                    
+                                                    <button type="button" onclick="add_wallet('<%= data._id %>')" class="btn btn-default add_wallet" style="width:100%;"><%= config_json.button_add_wallet %></button>
                                                 </li>
                                             <% } %>
                                             <!-- <li>
@@ -389,7 +389,7 @@
                 if(response.success) {
                     if(response.session_data.type == 1) {
                         if (response.session_data.url_array.indexOf('add_user_wallet_amount') == -1) {
-                            $('#add_wallet').hide();
+                            $('.add_wallet').hide();
                         }
                     }
                 } else {
